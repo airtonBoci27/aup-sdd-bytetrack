@@ -1,14 +1,15 @@
 <!--
 Sync Impact Report
-- Version change: (plantilla sin ratificar) → 1.0.0
-- Principios modificados: ninguno renombrado (se instancian por primera vez)
-- Principios añadidos: I. Fuente de verdad AUP; II. Especificación antes que código;
-  III. Pruebas automatizadas obligatorias; IV. Arquitectura en capas; V. Simplicidad e
-  integraciones con dobles de prueba; VI. Sin credenciales en el repositorio;
-  VII. Alcance acotado por iteración
-- Secciones añadidas: Restricciones Técnicas; Flujo de Desarrollo
-- Secciones eliminadas: ninguna (la plantilla se amplió de 5 a 7 principios)
-- Pendientes: ninguno
+- Version change: 1.1.0 → 1.1.1
+- Principios modificados: I y III (se fija la convención de identificadores de casos de prueba
+  CU-xx-<curso>: CU-01-B para el curso básico; CU-01-5a, CU-01-6a, etc. para los cursos alternos,
+  según la numeración de las narrativas en docs/aup/caso.md)
+- Principios añadidos: ninguno
+- Secciones modificadas: ninguna
+- Secciones eliminadas: ninguna
+- Justificación PATCH: precisión de redacción/convención de nombres; no cambia el alcance de
+  ningún principio.
+- Pendientes: ninguno (se resuelve el pendiente de la v1.1.0)
 -->
 # aup-sdd-caso Constitution
 
@@ -16,10 +17,14 @@ Sync Impact Report
 
 ### I. Documentación AUP como fuente de verdad
 Los documentos AUP en `docs/aup/` son la fuente de verdad de los requisitos. Sus códigos de
-trazabilidad (casos de uso `UC-xx`, reglas de negocio `RN-xx` y casos de prueba `CP-xx`) MUST
-conservarse tal cual en especificaciones, planes, tareas, código y pruebas; no se renombran,
-renumeran ni reutilizan. Todo endpoint MUST trazarse a un `UC-xx` y toda validación a una `RN-xx`.
-`docs/aup/` MUST NOT modificarse salvo petición explícita del usuario; si un requisito parece
+trazabilidad (casos de uso `CU-xx` y reglas de negocio `RN-xx`) MUST conservarse tal cual en
+especificaciones, planes, tareas, código y pruebas; no se renombran, renumeran ni reutilizan.
+Todo endpoint MUST trazarse a un `CU-xx` y toda validación a una `RN-xx`. El código `CP-AAAA-NNNN`
+es el número del comprobante de pago interno (un dato del dominio) y NO es un caso de prueba; los
+casos de prueba se derivan del curso básico y de los cursos alternos de las narrativas de los
+casos de uso, y se identifican con el código `CU-xx-<curso>`: `CU-01-B` para el curso básico y
+`CU-01-5a`, `CU-01-6a`, etc. para los cursos alternos, con la misma numeración que las narrativas
+en `docs/aup/caso.md`. `docs/aup/` MUST NOT modificarse salvo petición explícita del usuario; si un requisito parece
 incorrecto o incompleto, se reporta en lugar de corregirlo en silencio.
 
 ### II. Especificación antes que código
@@ -29,10 +34,15 @@ de tareas (`tasks.md`) aprobados. El trabajo de implementación MUST limitarse a
 el código.
 
 ### III. Pruebas automatizadas obligatorias (NON-NEGOTIABLE)
-Cada regla de negocio `RN-xx` y cada caso de prueba `CP-xx` MUST tener al menos una prueba
-automatizada con pytest que identifique el código que cubre. Una tarea no se considera terminada
-mientras sus pruebas no existan y pasen (`uv run pytest`). Las pruebas se escriben junto con el
-cambio que verifican, nunca se omiten ni se desactivan para hacer pasar una entrega.
+Cada regla de negocio `RN-xx` dentro del alcance de la iteración en curso MUST tener al menos una
+prueba automatizada con pytest que identifique el código que cubre. Las `RN-xx` que queden fuera
+del alcance de la iteración no requieren prueba en ella y MUST registrarse como pendientes según
+el principio VII. Los casos de prueba (`CU-xx-B` y `CU-xx-<curso alterno>`, p. ej. `CU-01-5a`)
+también MUST automatizarse cuando su `CU-xx` esté en el alcance de la iteración, y la prueba
+MUST nombrar o documentar el código que cubre.
+Una tarea no se considera terminada mientras sus pruebas no existan y pasen (`uv run pytest`). Las
+pruebas se escriben junto con el cambio que verifican, nunca se omiten ni se desactivan para hacer
+pasar una entrega.
 
 ### IV. Arquitectura en capas
 El flujo de dependencias es API → servicio → repositorio. Los endpoints (`app/api`) solo validan
@@ -55,7 +65,9 @@ los archivos locales con secretos (p. ej. `.env`) MUST estar en `.gitignore`.
 ### VII. Alcance acotado por iteración
 Cada iteración tiene un alcance explícito, definido por sus especificaciones y tareas. Trabajo fuera
 de ese alcance (funcionalidades extra, refactors oportunistas, requisitos nuevos) MUST registrarse
-para una iteración futura en lugar de incluirse en la actual.
+para una iteración futura en lugar de incluirse en la actual. Las `RN-xx` y casos de uso que
+queden fuera del alcance se registran como pendientes (con su código AUP) en la especificación o
+en `tasks.md` de la iteración, de modo que ninguna se pierda ni se implemente sin prueba.
 
 ## Restricciones Técnicas
 
@@ -70,7 +82,7 @@ para una iteración futura en lugar de incluirse en la actual.
 - Orden: especificar → planificar → generar tareas → implementar, usando los comandos de Spec Kit.
 - `.specify/memory/` MUST NOT modificarse salvo petición explícita del usuario, salvo mediante el
   flujo de enmienda de la sección Governance.
-- Toda revisión de cambios MUST verificar: trazabilidad UC/RN/CP, existencia de pruebas, respeto de
+- Toda revisión de cambios MUST verificar: trazabilidad CU/RN, existencia de pruebas para las RN del alcance, respeto de
   las capas y ausencia de credenciales.
 
 ## Governance
@@ -83,4 +95,4 @@ PATCH para aclaraciones y correcciones de redacción. Cada plan y revisión MUST
 verificación de cumplimiento de estos principios; cualquier complejidad adicional MUST justificarse
 por escrito. La guía operativa para agentes está en `AGENTS.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-10
+**Version**: 1.1.1 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-10
