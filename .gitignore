@@ -1,0 +1,14 @@
+# Base de datos local y archivos de entorno (principio VI: sin credenciales)
+*.db
+*.db-wal
+*.db-shm
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Sistema / editor
+.DS_Store
