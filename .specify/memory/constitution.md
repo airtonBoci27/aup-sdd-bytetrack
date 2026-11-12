@@ -1,18 +1,24 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.1 → 1.2.0
-- Principios modificados: ninguno renombrado (VII y las demás secciones conservan su texto)
-- Principios añadidos: VIII. Alcance cerrado (solo lo trazable a RF-xx, RNF-xx, CU-xx o RN-xx de
-  docs/aup/; prohibido añadir funcionalidades, pantallas, campos o endpoints no pedidos; toda spec
-  con matriz de trazabilidad y lista "Fuera de alcance")
-- Secciones modificadas: Restricciones Técnicas (se permite interfaz web con HTML, CSS y JavaScript
-  sin framework, servida por FastAPI; artefactos de Transición en docs/transicion/); Flujo de
-  Desarrollo (la revisión verifica también el alcance cerrado)
+- Version change: 1.2.0 → 1.3.0
+- Aprobación: el usuario aprobó la enmienda de forma explícita (2026-11-12) al planificar
+  specs/002-interfaz-recepcion-rol, con las dependencias que quedan sin Playwright.
+- Principios modificados: VI. Sin credenciales en el repositorio (aclaración: se permite versionar una
+  plantilla `.env.example` con los nombres de las variables y sin valores secretos).
+- Principios añadidos: ninguno
+- Secciones modificadas: Restricciones Técnicas (el stack incorpora las dependencias de ejecución
+  `pyjwt`, `python-multipart` y `python-dotenv`, con su motivo; se fija la regla para futuras
+  dependencias permanentes)
 - Secciones eliminadas: ninguna
-- Justificación MINOR: nuevo principio y ampliación material de la guía técnica; no es
-  incompatible hacia atrás con los artefactos existentes.
-- Plantillas/artefactos a revisar: specs/001-recepcion-orden-servicio/spec.md no tiene matriz de
-  trazabilidad ni sección "Fuera de alcance" con ese nombre exacto; verificar con /speckit-analyze.
+- Justificación MINOR: amplía de forma material la guía técnica (nuevas dependencias permanentes y una
+  aclaración al principio VI); no elimina ni redefine ningún principio, por lo que no es incompatible
+  hacia atrás con los artefactos existentes.
+- Plantillas revisadas: .specify/templates/plan-template.md (solo remite al archivo de la constitución,
+  sin cambios), spec-template.md, tasks-template.md y checklist-template.md (no citan la versión ni el
+  stack; sin cambios).
+- Artefactos afectados: specs/002-interfaz-recepcion-rol/plan.md (la condición de enmienda queda
+  resuelta); AGENTS.md (la sección Stack se alinea con esta versión). specs/001-recepcion-orden-servicio
+  no requiere migración: sus dependencias no cambian.
 - Pendientes: ninguno
 -->
 # aup-sdd-caso Constitution
@@ -64,7 +70,10 @@ servicios externos.
 ### VI. Sin credenciales en el repositorio
 Contraseñas, tokens, claves de API y cualquier otro secreto MUST NOT aparecer en el código, las
 pruebas, los datos de ejemplo ni el historial de git. Los secretos se leen de variables de entorno;
-los archivos locales con secretos (p. ej. `.env`) MUST estar en `.gitignore`.
+los archivos locales con secretos (p. ej. `.env`) MUST estar en `.gitignore`. Se permite versionar una
+plantilla `.env.example` que liste los nombres de las variables sin ningún valor secreto (valores
+vacíos o descripciones), para que se sepa qué configurar; las pruebas generan sus propios valores en
+tiempo de ejecución.
 
 ### VII. Alcance acotado por iteración
 Cada iteración tiene un alcance explícito, definido por sus especificaciones y tareas. Trabajo fuera
@@ -91,8 +100,13 @@ consultarse con el usuario antes de continuar.
 - Artefactos de la fase de Transición: se guardan en `docs/transicion/` (no en `docs/aup/`, que
   permanece protegido por el principio I).
 - Ejecución: `uv run uvicorn app.main:app --reload`; pruebas: `uv run pytest`.
-- Añadir dependencias o tecnologías fuera de este stack requiere justificación en el plan de la
-  funcionalidad y enmienda de esta constitución si es permanente.
+- Dependencias de ejecución adicionales aprobadas (enmienda 1.3.0, para la autenticación OAuth2 con
+  JWT de RNF-02 y la lectura de `.env`; justificación en `specs/002-interfaz-recepcion-rol/research.md`,
+  D12): `pyjwt` (firma y verificación de JWT), `python-multipart` (la exige FastAPI para el formulario
+  del flujo OAuth2 de contraseña) y `python-dotenv` (lectura de `.env`). El hash de contraseñas usa la
+  biblioteca estándar (`hashlib.scrypt`), sin dependencia adicional.
+- Añadir dependencias o tecnologías fuera de este stack y de las dependencias aprobadas arriba requiere
+  justificación en el plan de la funcionalidad y enmienda de esta constitución si es permanente.
 
 ## Flujo de Desarrollo
 
@@ -112,4 +126,4 @@ PATCH para aclaraciones y correcciones de redacción. Cada plan y revisión MUST
 verificación de cumplimiento de estos principios; cualquier complejidad adicional MUST justificarse
 por escrito. La guía operativa para agentes está en `AGENTS.md`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-12
+**Version**: 1.3.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-12

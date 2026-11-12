@@ -170,7 +170,7 @@ Si la solicitud de generar la orden se repite con el mismo identificador de oper
 
 ## Assumptions
 
-- **Autenticación fuera de alcance**: la precondición "sesión iniciada" de CU-01 se considera satisfecha; en esta iteración no se implementa autenticación (OAuth2/JWT). El actor se asume como Recepcionista.
+- **Autenticación**: dentro de C1 la precondición "sesión iniciada" de CU-01 se consideró satisfecha y el actor se asumió como Recepcionista. *Actualizado:* la funcionalidad [`002-interfaz-recepcion-rol`](../002-interfaz-recepcion-rol/spec.md) implementa el inicio de sesión y el acceso por rol (RNF-02) sobre las operaciones de esta iteración; las reglas de negocio de C1 no cambian.
 - **Técnicos preexistentes**: los técnicos y su condición de disponibilidad existen como datos previos y se asumen cargados. "Disponible" significa que el técnico está marcado como disponible; la gestión de esa condición no pertenece a esta iteración. La precondición de CU-01 exige al menos un técnico disponible.
 - **Costo de revisión inicial**: es un importe predefinido que se muestra al Recepcionista para su verificación; no se edita en la recepción. Su monto no está fijado en la documentación (el valor de S/ 40 de RN-11 es una propuesta sin aprobar y RN-11 está fuera de alcance), por lo que el monto se toma de la configuración del taller.
 - **Campos obligatorios**: DNI, nombres, apellidos y teléfono del cliente; tipo, marca, modelo y número de serie del equipo; estado físico al ingreso; falla reportada; y técnico. Son opcionales el correo del cliente y los accesorios dejados.
@@ -184,16 +184,16 @@ Si la solicitud de generar la orden se repite con el mismo identificador de oper
 
 **En alcance (C1)**: CU-05, CU-06 y CU-01 (curso básico y cursos alternos 2a, 2b, 5a y 6a); pantallas GUI-01 y GUI-02; alerta E01; reglas RN-01, RN-02, RN-03 (solo la asignación a un técnico disponible) y RN-10; RNF-04 (idempotencia) a través de RN-10.
 
-**Fuera de alcance en esta iteración**: autenticación OAuth2/JWT; CU-02, CU-03, CU-04, CU-07 y CU-08, junto con sus pantallas y alertas (GUI-03 a GUI-06, E02).
+**Fuera de alcance en esta iteración**: autenticación OAuth2/JWT (incorporada después por la funcionalidad 002, que protege las operaciones de recepción); CU-02, CU-03, CU-04, CU-07 y CU-08, junto con sus pantallas y alertas (GUI-03 a GUI-06, E02).
 
 **Pendientes registrados (principio VII de la constitución)**:
 
 | Código | Descripción | Iteración prevista |
 |--------|-------------|--------------------|
 | RNF-01 | Reserva atómica de repuestos sobre stock libre | C2 (CU-02) |
-| RNF-02 | Seguridad: autenticación OAuth2/JWT y reglas aplicadas directamente en la API | Pendiente de planificar |
+| RNF-02 | Seguridad: autenticación OAuth2/JWT y reglas aplicadas directamente en la API | Parcialmente cubierto por la funcionalidad 002 (acceso por rol a CU-01, CU-05 y CU-06); la parte restante (decisión, cobro, diagnóstico y finalización) llega con CU-02 a CU-08 |
 | RNF-03 | Rendimiento: p95 ≤ 1 s con 5 sesiones concurrentes | Pendiente de planificar |
-| RN-03 (parte de acceso) | El técnico solo accede a sus órdenes asignadas | Pendiente (depende de autenticación) |
+| RN-03 (parte de acceso) | El técnico solo accede a sus órdenes asignadas | Pendiente (la autenticación ya existe por 002; falta el acceso del Técnico a sus órdenes, desde C2) |
 | RN-04 a RN-09, RN-11 | Reglas de presupuesto, decisión, reparación, cobro, transacción de entrega y cobro de revisión | C2 a C4 según la lista de trabajo |
 
 ## Trazabilidad

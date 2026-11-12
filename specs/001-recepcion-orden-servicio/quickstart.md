@@ -53,4 +53,4 @@ Criterio de aceptación de C1: todas las pruebas pasan y cada RN en alcance (RN-
 
 ## Fuera de alcance (no validar en C1)
 
-Autenticación OAuth2/JWT, CU-02, CU-03, CU-04, CU-07, CU-08 y las pruebas de RNF-01, RNF-02 y RNF-03 (pendientes).
+CU-02, CU-03, CU-04, CU-07, CU-08 y las pruebas de RNF-01 y RNF-03 (pendientes). La autenticación OAuth2/JWT y las pruebas de RNF-02 pertenecen a la funcionalidad 002 (`specs/002-interfaz-recepcion-rol/quickstart.md`); con ella, los escenarios de arriba requieren iniciar sesión como Recepcionista (en Swagger, botón «Authorize»).

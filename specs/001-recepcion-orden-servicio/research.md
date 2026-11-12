@@ -72,4 +72,4 @@ No quedaron `NEEDS CLARIFICATION` en el contexto técnico. Este documento regist
 
 ## Pendientes registrados (no se resuelven en C1)
 
-- RNF-01 (reserva atómica), RNF-02 (OAuth2/JWT y reglas en la API), RNF-03 (rendimiento p95 ≤ 1 s con 5 sesiones) y la parte de acceso de RN-03 (el técnico solo ve sus órdenes), conforme a la especificación.
+- RNF-01 (reserva atómica), RNF-02 (OAuth2/JWT y reglas en la API; atendido en parte por la funcionalidad 002), RNF-03 (rendimiento p95 ≤ 1 s con 5 sesiones) y la parte de acceso de RN-03 (el técnico solo ve sus órdenes), conforme a la especificación.

@@ -1,6 +1,6 @@
 # Contrato de la API — Iteración C1
 
-Contrato de las operaciones expuestas por la API REST (y documentadas en Swagger UI, `/docs`). La definición OpenAPI definitiva la genera FastAPI a partir de los esquemas; este documento fija el comportamiento esperado que las pruebas de contrato deben verificar. Formato JSON. Sin autenticación en C1 (RNF-02 pendiente).
+Contrato de las operaciones expuestas por la API REST (y documentadas en Swagger UI, `/docs`). La definición OpenAPI definitiva la genera FastAPI a partir de los esquemas; este documento fija el comportamiento esperado que las pruebas de contrato deben verificar. Formato JSON. *Actualizado:* las cinco operaciones exigen sesión activa con rol Recepcionista (RNF-02) y pueden responder 401 `NO_AUTENTICADO` o 403 `ROL_NO_PERMITIDO`; el inicio y el cierre de sesión están en [`../../002-interfaz-recepcion-rol/contracts/api-acceso.md`](../../002-interfaz-recepcion-rol/contracts/api-acceso.md). Las tablas de abajo describen únicamente las respuestas de negocio de C1.
 
 Cada operación declara en Swagger su etiqueta `CU-xx · GUI-xx` y las reglas `RN-xx` que valida.
 
@@ -48,7 +48,7 @@ Cuerpo: `{ "dni": "12345678", "nombres": "...", "apellidos": "...", "telefono": 
 
 | Código | Cuándo | Cuerpo |
 |--------|--------|--------|
-| 200 | Siempre | `[ {id, nombres, apellidos} ]` solo con técnicos `disponible = true` (RN-03); lista vacía si no hay ninguno |
+| 200 | Siempre | `[ {id, nombres, apellidos, cola} ]` solo con técnicos `disponible = true` (RN-03); lista vacía si no hay ninguno. `cola` (entero) se agregó en 002 como dato de solo lectura para mostrar «(N en cola)» en GUI-01 |
 
 ## GET /ordenes/costo-revision-inicial — CU-01 paso 4 · GUI-01
 

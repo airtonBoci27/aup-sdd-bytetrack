@@ -26,7 +26,7 @@ Enfoque técnico: API REST con FastAPI organizada en capas API → servicio → 
 
 **Performance Goals**: Sin objetivo formal en C1 (RNF-03, p95 ≤ 1 s con 5 sesiones, queda pendiente). Meta práctica de SC-001: recepción completa en menos de 3 minutos de trabajo humano; la API responde de forma interactiva en uso local.
 
-**Constraints**: Una escritura a la vez (SQLite); operaciones de escritura de CU-01 y CU-06 atómicas (todo o nada); sin credenciales en el repositorio; sin autenticación en esta iteración; sin llamadas a servicios externos.
+**Constraints**: Una escritura a la vez (SQLite); operaciones de escritura de CU-01 y CU-06 atómicas (todo o nada); sin credenciales en el repositorio; sin autenticación dentro de C1 (incorporada después por la funcionalidad 002); sin llamadas a servicios externos.
 
 **Scale/Scope**: Taller de ~30 equipos diarios; 3 casos de uso, 2 pantallas (GUI-01 y GUI-02 expresadas como operaciones Swagger), 5 entidades de datos, ~5 endpoints.
 
@@ -38,7 +38,7 @@ Enfoque técnico: API REST con FastAPI organizada en capas API → servicio → 
 | Frontend estático (S3 + CloudFront + WAF) | Sin frontend propio; la interfaz es Swagger UI de FastAPI | Indicación del usuario; reduce alcance sin perder la trazabilidad GUI-01/GUI-02 (cada operación Swagger declara su pantalla). |
 | FastAPI en ECS Fargate tras balanceador | FastAPI ejecutado localmente con Uvicorn | Sin nube en esta entrega. |
 | SES para avisos por correo | Fuera de alcance | C1 no envía correos. |
-| OAuth2 con JWT | Fuera de alcance (RNF-02 pendiente) | Definido en el alcance de la iteración. |
+| OAuth2 con JWT | Fuera de alcance en C1; implementado después por la funcionalidad [002](../002-interfaz-recepcion-rol/plan.md) | Definido en el alcance de la iteración; RNF-02 se atiende con 002. |
 
 Estas desviaciones están justificadas y registradas aquí; la arquitectura de tres capas de la API (interfaz, servicios, repositorios) y la unidad de trabajo transaccional del diseño AUP (sección 3.5) se conservan.
 
@@ -53,8 +53,8 @@ Estas desviaciones están justificadas y registradas aquí; la arquitectura de t
 | III. Pruebas automatizadas obligatorias | Cada RN en alcance y cada caso `CU-01-B`, `CU-01-2a`, `CU-01-2b`, `CU-01-5a`, `CU-01-6a` tiene prueba pytest nombrada con su código (ver [quickstart.md](quickstart.md)). | PASA |
 | IV. Arquitectura en capas | `app/api` → `app/services` → `app/repositories` → `app/models`; las reglas viven en servicios; los endpoints no tocan la base directamente. | PASA |
 | V. Simplicidad e integraciones con dobles de prueba | SQLite local; sin integraciones externas en C1 (no hay pagos, facturación ni correo), por lo que no se requieren dobles. | PASA |
-| VI. Sin credenciales en el repositorio | Configuración por variables de entorno; sin secretos en C1; `*.db` y `.env` en `.gitignore`. | PASA |
-| VII. Alcance acotado por iteración | Fuera de alcance: OAuth2/JWT, CU-02/03/04/07/08; pendientes RNF-01/02/03 y RN-03 (acceso) registrados en la especificación. | PASA |
+| VI. Sin credenciales en el repositorio | Configuración por variables de entorno; sin secretos en C1 (002 agrega la clave de firma y las contraseñas, solo por entorno); `*.db` y `.env` en `.gitignore`. | PASA |
+| VII. Alcance acotado por iteración | Fuera de alcance de C1: OAuth2/JWT (luego 002), CU-02/03/04/07/08; pendientes RNF-01/02/03 y RN-03 (acceso) registrados en la especificación. | PASA |
 
 **Re-evaluación posterior al diseño (Fase 1)**: se mantiene PASA. El diseño no introduce capas, servicios ni tecnologías adicionales a las del stack. La tabla de operaciones idempotentes es el mecanismo pedido para RN-10 y no se considera complejidad extra.
 
