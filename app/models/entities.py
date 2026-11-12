@@ -1,12 +1,10 @@
 """Modelos SQLAlchemy de la iteración C1 (ver specs/001-recepcion-orden-servicio/data-model.md)."""
 
-from datetime import UTC, datetime
 from decimal import Decimal
 
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
-    DateTime,
     ForeignKey,
     Index,
     Integer,
@@ -44,10 +42,6 @@ class Dinero(TypeDecorator):
 
     def process_result_value(self, valor, dialecto):
         return None if valor is None else Decimal(valor)
-
-
-def _ahora() -> datetime:
-    return datetime.now(UTC)
 
 
 class Cliente(Base):
@@ -111,7 +105,7 @@ class OrdenServicio(Base):
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    codigo: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # OS-NNNNNN
+    codigo: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # OS-AAAA-NNNN (GUI-01)
     equipo_id: Mapped[int] = mapped_column(ForeignKey("equipo.id"), nullable=False)
     tecnico_id: Mapped[int] = mapped_column(ForeignKey("tecnico.id"), nullable=False)
     estado: Mapped[str] = mapped_column(String, nullable=False, default=ESTADO_RECEPCIONADO)
@@ -120,7 +114,6 @@ class OrdenServicio(Base):
     falla_reportada: Mapped[str] = mapped_column(Text, nullable=False)
     costo_revision: Mapped[Decimal] = mapped_column(Dinero, nullable=False)
     id_op: Mapped[str] = mapped_column(String, unique=True, nullable=False)  # RN-10
-    creada_en: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=_ahora)
 
     equipo: Mapped[Equipo] = relationship()
     tecnico: Mapped[Tecnico] = relationship()
@@ -132,8 +125,6 @@ class OperacionIdempotente(Base):
     __tablename__ = "operacion_idempotente"
 
     id_op: Mapped[str] = mapped_column(String, primary_key=True)
-    operacion: Mapped[str] = mapped_column(String, nullable=False)  # "CU-01"
     huella: Mapped[str] = mapped_column(String, nullable=False)  # SHA-256 de la solicitud
     orden_id: Mapped[int] = mapped_column(ForeignKey("orden_servicio.id"), nullable=False)
     resultado: Mapped[str] = mapped_column(Text, nullable=False)  # JSON de la respuesta original
-    creada_en: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=_ahora)

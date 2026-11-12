@@ -27,7 +27,7 @@ Abrir `http://127.0.0.1:8000/docs` (Swagger UI): es la interfaz de la entrega. C
 
 | Código | Escenario | Pasos | Resultado esperado |
 |--------|-----------|-------|--------------------|
-| CU-01-B | Orden para cliente existente | 1) `POST /clientes` con un DNI nuevo. 2) `GET /clientes/{dni}`. 3) `GET /tecnicos/disponibles` y `GET /ordenes/costo-revision-inicial`. 4) `POST /ordenes` con un equipo nuevo y un `id_op` nuevo | 201; orden `RECEPCIONADO` con código `OS-NNNNNN`; la cola del técnico aumenta en 1 |
+| CU-01-B | Orden para cliente existente | 1) `POST /clientes` con un DNI nuevo. 2) `GET /clientes/{dni}`. 3) `GET /tecnicos/disponibles` y `GET /ordenes/costo-revision-inicial`. 4) `POST /ordenes` con un equipo nuevo y un `id_op` nuevo | 201; orden `RECEPCIONADO` con código `OS-AAAA-NNNN`; la cola del técnico aumenta en 1 |
 | CU-01-2a | DNI inexistente | `GET /clientes/{dni}` con un DNI no registrado; luego `POST /clientes` | 404 con `habilitar_registro`; 201 al registrar |
 | CU-01-2b | DNI ya registrado en el modal | `POST /clientes` con un DNI existente | 200, `ya_registrado: true`, aviso "El DNI ya está registrado"; sin duplicados |
 | CU-01-5a | Equipo con orden activa | `POST /ordenes` con la misma serie y un `id_op` nuevo | 409 `E01` con el número de la orden activa; cola sin cambios |

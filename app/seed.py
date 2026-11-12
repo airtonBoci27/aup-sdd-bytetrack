@@ -1,4 +1,4 @@
-"""Datos de demostración para uso local: técnicos (su mantenimiento no pertenece a C1).
+"""Datos iniciales (fase de Transición) para uso local: técnicos (su mantenimiento no pertenece a C1).
 
 Uso: ``uv run python -m app.seed`` (idempotente: no duplica técnicos si ya existen).
 Solo contiene nombres ficticios; no incluye credenciales ni datos personales reales.

@@ -7,7 +7,7 @@ Cada operación declara en Swagger su etiqueta `CU-xx · GUI-xx` y las reglas `R
 ## Formato de error uniforme
 
 ```json
-{ "codigo": "E01", "mensaje": "Este número de serie ya posee la Orden activa N.° OS-000012 en laboratorio", "detalle": { "orden_activa": "OS-000012" } }
+{ "codigo": "E01", "mensaje": "Este número de serie ya posee la Orden activa N.° OS-2026-0131 en laboratorio", "detalle": { "orden_activa": "OS-2026-0131" } }
 ```
 
 Errores de formato del cuerpo o de los parámetros devuelven 422 con la estructura de validación de FastAPI.
@@ -48,7 +48,7 @@ Cuerpo: `{ "dni": "12345678", "nombres": "...", "apellidos": "...", "telefono": 
 
 | Código | Cuándo | Cuerpo |
 |--------|--------|--------|
-| 200 | Siempre | `[ {id, nombres, apellidos, cola} ]` solo con técnicos `disponible = true` (RN-03); lista vacía si no hay ninguno |
+| 200 | Siempre | `[ {id, nombres, apellidos} ]` solo con técnicos `disponible = true` (RN-03); lista vacía si no hay ninguno |
 
 ## GET /ordenes/costo-revision-inicial — CU-01 paso 4 · GUI-01
 
@@ -79,7 +79,7 @@ Cuerpo:
 
 | Código | Cuándo | Cuerpo |
 |--------|--------|--------|
-| 201 | Orden creada (CU-01-B) | `{ "orden": {codigo, estado: "RECEPCIONADO", dni, equipo, tecnico, accesorios, estado_fisico, falla_reportada, costo_revision, creada_en}, "reintento": false }` y se incrementa en 1 la cola del técnico |
+| 201 | Orden creada (CU-01-B) | `{ "orden": {codigo, estado: "RECEPCIONADO", dni, equipo, tecnico, accesorios, estado_fisico, falla_reportada, costo_revision}, "reintento": false }` y se incrementa en 1 la cola del técnico |
 | 200 | Mismo `id_op` y mismos datos (CU-01-6a; RN-10) | Mismo cuerpo que la creación original con `"reintento": true`; no crea orden ni incrementa la cola |
 | 404 | DNI inexistente | `CLIENTE_NO_ENCONTRADO` |
 | 409 | La serie tiene una orden con estado distinto de ENTREGADO (CU-01-5a; RN-02) | `E01` con el número de la orden activa; no crea nada ni cambia la cola |

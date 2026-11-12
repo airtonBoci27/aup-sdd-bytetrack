@@ -4,6 +4,8 @@ La base es un archivo (no memoria) para poder abrir conexiones independientes en
 pruebas de concurrencia (RN-02, RN-10).
 """
 
+from datetime import date
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -105,7 +107,7 @@ def crear_orden(fabrica_sesiones):
         with fabrica_sesiones() as s:
             n = s.query(OrdenServicio).count() + 1
             orden = OrdenServicio(
-                codigo=f"OS-{n:06d}",
+                codigo=f"OS-{date.today().year}-{n:04d}",
                 equipo_id=equipo_id,
                 tecnico_id=tecnico_id,
                 estado=estado,

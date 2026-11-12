@@ -1,6 +1,5 @@
 """Esquemas Pydantic de entrada y salida (ver contracts/api-c1.md)."""
 
-from datetime import datetime
 from decimal import Decimal
 from typing import Annotated
 
@@ -64,7 +63,6 @@ class TecnicoOut(_Salida):
     id: int
     nombres: str
     apellidos: str
-    cola: int
 
 
 class TecnicoResumenOut(_Salida):
@@ -88,7 +86,7 @@ class EquipoNuevoIn(_Entrada):
 
 
 class OrdenIn(_Entrada):
-    id_op: Annotated[str, StringConstraints(strip_whitespace=True, min_length=8, max_length=64)]
+    id_op: TextoObligatorio
     dni: DniStr
     equipo_id: int | None = None
     equipo: EquipoNuevoIn | None = None
@@ -114,7 +112,6 @@ class OrdenOut(_Salida):
     estado_fisico: str
     falla_reportada: str
     costo_revision: Decimal
-    creada_en: datetime
 
 
 class CrearOrdenOut(BaseModel):

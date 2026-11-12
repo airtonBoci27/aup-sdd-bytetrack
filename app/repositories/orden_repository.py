@@ -1,5 +1,6 @@
 """Acceso a datos de órdenes de servicio."""
 
+from datetime import date
 from decimal import Decimal
 
 from sqlalchemy import func, select
@@ -32,15 +33,23 @@ class OrdenRepository:
         costo_revision: Decimal,
         id_op: str,
     ) -> OrdenServicio:
-        """Crea la orden RECEPCIONADO y fija su código ``OS-NNNNNN`` en la misma transacción.
+        """Crea la orden RECEPCIONADO y fija su código ``OS-AAAA-NNNN`` en la misma transacción.
 
-        Se ejecuta con el bloqueo de escritura tomado (BEGIN IMMEDIATE), por lo que el
-        siguiente identificador no puede ser usado por otra transacción.
+        Formato del prototipo GUI-01 (ejemplo ``OS-2026-0146``): año de la recepción y
+        correlativo de órdenes de ese año. Se ejecuta con el bloqueo de escritura tomado
+        (BEGIN IMMEDIATE), por lo que el siguiente correlativo no puede usarlo otra transacción.
         """
-        siguiente_id = self.sesion.scalar(select(func.coalesce(func.max(OrdenServicio.id), 0) + 1))
+        prefijo = f"OS-{date.today().year}-"
+        correlativo = (
+            self.sesion.scalar(
+                select(func.count()).select_from(OrdenServicio).where(
+                    OrdenServicio.codigo.like(f"{prefijo}%")
+                )
+            )
+            + 1
+        )
         orden = OrdenServicio(
-            id=siguiente_id,
-            codigo=f"OS-{siguiente_id:06d}",
+            codigo=f"{prefijo}{correlativo:04d}",
             equipo_id=equipo_id,
             tecnico_id=tecnico_id,
             estado=ESTADO_RECEPCIONADO,

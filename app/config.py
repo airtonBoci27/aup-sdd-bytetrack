@@ -7,8 +7,8 @@ Los valores se leen en cada llamada para que las pruebas puedan modificarlos.
 import os
 from decimal import Decimal
 
-# Valor de prototipo, pendiente de confirmar con el taller. La documentación AUP solo
-# menciona S/ 40 como propuesta de RN-11 (fuera de alcance en C1).
+# Origen: GUI-01 («Costo de revisión S/ 40.00») y RN-11. RN-11 es una propuesta pendiente de
+# confirmar con el taller y está fuera de alcance en C1.
 COSTO_REVISION_POR_DEFECTO = "40.00"
 
 

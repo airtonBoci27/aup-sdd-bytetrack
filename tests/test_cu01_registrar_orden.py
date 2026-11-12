@@ -1,6 +1,7 @@
 """CU-01 Registrar orden de servicio (GUI-01): curso básico, RN-01 y RN-03 (asignación)."""
 
 import re
+from datetime import date
 
 ID_OP = "op-0000-0001"
 
@@ -25,7 +26,7 @@ def _equipo_nuevo(numero_serie="SN-NUEVO-1"):
 
 
 def test_cu01_B_crea_orden_equipo_existente(client, crear_cliente, crear_equipo, crear_tecnico, leer):
-    """CU-01-B: orden RECEPCIONADO con código OS-NNNNNN, costo de revisión y cola del técnico +1."""
+    """CU-01-B: orden RECEPCIONADO con código OS-AAAA-NNNN (GUI-01), costo de revisión y cola del técnico +1."""
     cliente_id = crear_cliente()
     equipo_id = crear_equipo(cliente_id)
     tecnico_id = crear_tecnico(cola=2)
@@ -37,7 +38,7 @@ def test_cu01_B_crea_orden_equipo_existente(client, crear_cliente, crear_equipo,
     assert cuerpo["reintento"] is False
     orden = cuerpo["orden"]
     assert orden["estado"] == "RECEPCIONADO"
-    assert re.fullmatch(r"OS-\d{6}", orden["codigo"])
+    assert re.fullmatch(rf"OS-{date.today().year}-\d{{4}}", orden["codigo"])
     assert orden["costo_revision"] == "40.00"
     assert orden["tecnico"]["id"] == tecnico_id
     assert orden["equipo"]["id"] == equipo_id
@@ -143,7 +144,7 @@ def test_rn03_solo_tecnicos_disponibles_en_lista(client, crear_tecnico):
 
     assert respuesta.status_code == 200
     assert [t["id"] for t in respuesta.json()] == [disponible]
-    assert respuesta.json()[0]["cola"] == 4
+    assert set(respuesta.json()[0]) == {"id", "nombres", "apellidos"}
 
 
 def test_rn03_tecnico_no_disponible_rechazado(client, crear_cliente, crear_equipo, crear_tecnico, leer):
@@ -222,7 +223,30 @@ def test_cu01_B_codigos_de_orden_correlativos(client, crear_cliente, crear_tecni
         )
         assert r.status_code == 201
         codigos.append(r.json()["orden"]["codigo"])
-    assert codigos == ["OS-000001", "OS-000002"]
+    anio = date.today().year
+    assert codigos == [f"OS-{anio}-0001", f"OS-{anio}-0002"]
+
+
+def test_cu01_B_correlativo_se_reinicia_cada_anio(
+    client, crear_cliente, crear_equipo, crear_tecnico, crear_orden, fabrica_sesiones
+):
+    """CU-01-B: el código OS-AAAA-NNNN numera las órdenes de cada año (GUI-01)."""
+    from app.models.entities import OrdenServicio
+
+    cliente_id = crear_cliente()
+    equipo_previo = crear_equipo(cliente_id, numero_serie="SN-PREVIO")
+    tecnico_id = crear_tecnico()
+    crear_orden(equipo_previo, tecnico_id, estado="ENTREGADO")
+    with fabrica_sesiones() as s:  # una orden de un año anterior
+        s.query(OrdenServicio).update({OrdenServicio.codigo: "OS-2020-0099"})
+        s.commit()
+
+    r = client.post(
+        "/ordenes",
+        json=_solicitud(id_op="op-anio-0001", equipo=_equipo_nuevo("SN-ANIO"), tecnico_id=tecnico_id),
+    )
+
+    assert r.json()["orden"]["codigo"] == f"OS-{date.today().year}-0001"
 
 
 def test_cu01_B_fallo_no_deja_datos_parciales(client, crear_cliente, crear_tecnico, leer, monkeypatch):

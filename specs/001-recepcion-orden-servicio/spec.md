@@ -207,3 +207,26 @@ Los casos de prueba usan la convención `CU-xx-<curso>` de la constitución y la
 | CU-01-2b | DNI ya registrado en el modal (CU-06) | US4 | RN-01 | GUI-02 |
 | CU-01-5a | El equipo ya tiene una orden activa | US3 | RN-02 | E01 en GUI-01 |
 | CU-01-6a | Reintento de confirmación (ID OP) | US5 | RN-10 (RNF-04) | GUI-01 |
+
+### Elementos de diseño con origen indirecto
+
+Cada elemento que no figura literalmente en la narrativa de CU-01 se traza aquí a su origen en `docs/aup/`.
+
+| Elemento | Origen en `docs/aup/` | Notas |
+|----------|----------------------|-------|
+| Código de orden `OS-AAAA-NNNN` | GUI-01 (ejemplo `OS-2026-0146`) | Año de la recepción y correlativo de 4 dígitos que se reinicia cada año |
+| Monto de revisión 40.00 (valor por defecto) | GUI-01 («Costo de revisión S/ 40.00») y RN-11 | RN-11 es una propuesta sin aprobar y está fuera de alcance; el monto se toma de la configuración |
+| `huella` (SHA-256) de la operación idempotente | RNF-04 y sección 3.7.2 (Liquidación e idempotencia, E2) | Detecta un ID OP reutilizado con datos distintos |
+| `reintento` en la respuesta de la orden | RNF-04 y sección 3.7.2 | Indica que la respuesta proviene de un reintento (CU-01 curso 6a) |
+| Estados `PRESUPUESTADO`, `APROBADO`, `RECHAZADO`, `LISTO` | Modelo de dominio (estados de la orden) | C1 solo crea `RECEPCIONADO`; los demás pertenecen a casos de uso fuera de alcance |
+| `app/seed.py` (técnicos de demostración) | Datos iniciales de la fase de Transición | Solo datos ficticios; no es funcionalidad de C1 |
+| Esquema de error `{codigo, mensaje, detalle}` | CU-01 curso 5a (alerta E01) | Una forma uniforme de entregar la alerta E01 y los demás rechazos |
+
+Elementos con origen propuesto por el agente, **pendientes de confirmar** por el usuario:
+
+| Elemento | Origen propuesto | Notas |
+|----------|------------------|-------|
+| `equipos` en la respuesta de `POST /clientes` | CU-01 curso 2b: «carga el cliente existente» y retorna al paso 3 | |
+| `accesorios` opcional | CU-01 paso 3 y casillas de accesorios de GUI-01 | El AUP no dice si es obligatorio |
+| Código de error `EQUIPO_NO_ENCONTRADO` | CU-01 paso 3 (selección de un equipo existente del cliente) | |
+| Variables de entorno `BYTETRACK_DB_PATH` y `BYTETRACK_COSTO_REVISION` | Constitución, principio VI; CU-01 paso 4 | |

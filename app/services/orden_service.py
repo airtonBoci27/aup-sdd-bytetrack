@@ -56,7 +56,6 @@ def _a_orden_out(orden: OrdenServicio) -> OrdenOut:
         estado_fisico=orden.estado_fisico,
         falla_reportada=orden.falla_reportada,
         costo_revision=orden.costo_revision,
-        creada_en=orden.creada_en,
     )
 
 
@@ -180,7 +179,6 @@ def _registrar(sesion: Session, datos: OrdenIn) -> tuple[CrearOrdenOut, bool]:
     # RN-10: se guarda el ID OP con su resultado en la misma transacción (solo si se confirma).
     operaciones.registrar(
         id_op=datos.id_op,
-        operacion="CU-01",
         huella=huella,
         orden_id=orden.id,
         resultado=respuesta.model_dump_json(),

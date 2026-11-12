@@ -106,7 +106,6 @@ def test_rn10_resultado_guardado_se_devuelve_integro(client, crear_cliente, crea
 
     operacion = leer(lambda s: s.get(OperacionIdempotente, cuerpo["id_op"]))
     assert operacion is not None
-    assert operacion.operacion == "CU-01"
     assert len(operacion.huella) == 64  # SHA-256 en hexadecimal
 
     # Aunque cambie la configuración, el reintento devuelve el resultado original guardado.

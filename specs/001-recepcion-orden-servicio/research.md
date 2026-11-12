@@ -37,7 +37,7 @@ No quedaron `NEEDS CLARIFICATION` en el contexto técnico. Este documento regist
 - **Flujo**: (1) buscar `id_op`; (2) si existe y la huella coincide → devolver el resultado guardado (HTTP 200, sin escribir nada); (3) si existe y la huella difiere → rechazar (`ID_OP_CONFLICTO`, 409); (4) si no existe → ejecutar la operación y registrar el ID OP con su resultado.
 - **Rationale**: Un reintento recupera exactamente la respuesta original sin recalcular, no duplica la orden ni vuelve a incrementar la cola; el rechazo con datos distintos sigue el diseño de AUP (los controles compartidos). Las solicitudes fallidas no registran ID OP, así que el usuario puede corregir y reintentar con el mismo ID.
 - **Alternatives considered**: Solo la restricción única de `orden.id_op` (descartada: no devuelve la respuesta original ni detecta datos distintos); caché en memoria (descartada: no sobrevive reinicios ni procesos).
-- **Formato del ID OP**: cadena UUID generada por el cliente (Swagger lo muestra como campo del cuerpo `id_op`), de 8 a 64 caracteres.
+- **Formato del ID OP**: cadena generada por el cliente (Swagger lo muestra como campo del cuerpo `id_op`), obligatoria y no vacía; el AUP no fija longitud ni formato.
 
 ## D6. Tratamiento de errores y códigos
 
@@ -61,7 +61,7 @@ No quedaron `NEEDS CLARIFICATION` en el contexto técnico. Este documento regist
 
 ## D10. Código de orden
 
-- **Decision**: Código único con formato `OS-` seguido de un correlativo de 6 dígitos (por ejemplo `OS-000001`), derivado del identificador de la orden dentro de la misma transacción. La respuesta lo devuelve en un campo apto para impresión; la impresión no forma parte de C1.
+- **Decision**: Código único con formato `OS-AAAA-NNNN` (año de la recepción y correlativo de 4 dígitos que se reinicia cada año; ejemplo `OS-2026-0146`), tomado del prototipo GUI-01 y calculado dentro de la misma transacción. La respuesta lo devuelve en un campo apto para impresión; la impresión no forma parte de C1.
 - **Rationale**: Cumple "código de orden generado listo para imprimir" con un formato simple. El formato exacto no está definido en AUP; se registra como decisión de diseño.
 
 ## D11. Estrategia de pruebas

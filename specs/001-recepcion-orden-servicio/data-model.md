@@ -47,7 +47,7 @@ Los técnicos se cargan como datos previos (seed o fixtures); su mantenimiento n
 | Campo | Tipo | Reglas |
 |-------|------|--------|
 | id | entero, PK | Generado |
-| codigo | texto | Único; formato `OS-NNNNNN` derivado del id |
+| codigo | texto | Único; formato `OS-AAAA-NNNN` (GUI-01): año de la recepción y correlativo del año |
 | equipo_id | FK → equipo | Obligatorio |
 | tecnico_id | FK → tecnico | Obligatorio; técnico disponible al crear (RN-03) |
 | estado | texto | `RECEPCIONADO` al crearse; valores del dominio: RECEPCIONADO, PRESUPUESTADO, APROBADO, RECHAZADO, LISTO, ENTREGADO (C1 solo crea RECEPCIONADO) |
@@ -56,7 +56,6 @@ Los técnicos se cargan como datos previos (seed o fixtures); su mantenimiento n
 | falla_reportada | texto | Obligatorio |
 | costo_revision | decimal (2) | Tomado de la configuración al crear |
 | id_op | texto | Único; ID OP con el que se creó (RN-10) |
-| creada_en | fecha-hora | Asignada por el sistema |
 
 Restricción clave (RN-02): **índice único parcial** sobre `equipo_id` aplicable a las filas con `estado <> 'ENTREGADO'` — impide dos órdenes activas del mismo equipo incluso bajo concurrencia.
 
@@ -65,11 +64,9 @@ Restricción clave (RN-02): **índice único parcial** sobre `equipo_id` aplicab
 | Campo | Tipo | Reglas |
 |-------|------|--------|
 | id_op | texto, PK | Identificador de la operación (RN-10) |
-| operacion | texto | `CU-01` en C1 |
 | huella | texto | SHA-256 de la solicitud normalizada; detecta reutilización con datos distintos |
 | orden_id | FK → orden_servicio | Orden creada |
 | resultado | JSON (texto) | Respuesta original serializada, devuelta íntegra en los reintentos |
-| creada_en | fecha-hora | Asignada por el sistema |
 
 Solo se inserta cuando la operación se confirma, dentro de la misma transacción que la orden y el incremento de cola.
 
