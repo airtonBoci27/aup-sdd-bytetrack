@@ -1,15 +1,19 @@
 <!--
 Sync Impact Report
-- Version change: 1.1.0 → 1.1.1
-- Principios modificados: I y III (se fija la convención de identificadores de casos de prueba
-  CU-xx-<curso>: CU-01-B para el curso básico; CU-01-5a, CU-01-6a, etc. para los cursos alternos,
-  según la numeración de las narrativas en docs/aup/caso.md)
-- Principios añadidos: ninguno
-- Secciones modificadas: ninguna
+- Version change: 1.1.1 → 1.2.0
+- Principios modificados: ninguno renombrado (VII y las demás secciones conservan su texto)
+- Principios añadidos: VIII. Alcance cerrado (solo lo trazable a RF-xx, RNF-xx, CU-xx o RN-xx de
+  docs/aup/; prohibido añadir funcionalidades, pantallas, campos o endpoints no pedidos; toda spec
+  con matriz de trazabilidad y lista "Fuera de alcance")
+- Secciones modificadas: Restricciones Técnicas (se permite interfaz web con HTML, CSS y JavaScript
+  sin framework, servida por FastAPI; artefactos de Transición en docs/transicion/); Flujo de
+  Desarrollo (la revisión verifica también el alcance cerrado)
 - Secciones eliminadas: ninguna
-- Justificación PATCH: precisión de redacción/convención de nombres; no cambia el alcance de
-  ningún principio.
-- Pendientes: ninguno (se resuelve el pendiente de la v1.1.0)
+- Justificación MINOR: nuevo principio y ampliación material de la guía técnica; no es
+  incompatible hacia atrás con los artefactos existentes.
+- Plantillas/artefactos a revisar: specs/001-recepcion-orden-servicio/spec.md no tiene matriz de
+  trazabilidad ni sección "Fuera de alcance" con ese nombre exacto; verificar con /speckit-analyze.
+- Pendientes: ninguno
 -->
 # aup-sdd-caso Constitution
 
@@ -69,10 +73,23 @@ para una iteración futura en lugar de incluirse en la actual. Las `RN-xx` y cas
 queden fuera del alcance se registran como pendientes (con su código AUP) en la especificación o
 en `tasks.md` de la iteración, de modo que ninguna se pierda ni se implemente sin prueba.
 
+### VIII. Alcance cerrado
+Solo se especifica e implementa lo que se traza a un `RF-xx`, `RNF-xx`, `CU-xx` o `RN-xx` de
+`docs/aup/` (los RF y RNF están en `docs/aup/requerimientos.md`). Está prohibido agregar
+funcionalidades, pantallas, campos o endpoints no pedidos, aunque parezcan útiles; una idea de ese
+tipo se reporta al usuario en lugar de incluirse. Toda especificación (`spec.md`) MUST incluir una
+matriz de trazabilidad (cada historia, requisito, endpoint, pantalla y campo con su código AUP) y
+una lista "Fuera de alcance". Un elemento sin código AUP que lo respalde MUST eliminarse o
+consultarse con el usuario antes de continuar.
+
 ## Restricciones Técnicas
 
 - Stack: Python 3.12, FastAPI, SQLAlchemy, SQLite y pytest, gestionado con `uv`.
 - Estructura: `app/` (`api`, `services`, `models`, `repositories`) y `tests/`.
+- Interfaz web: se permite una interfaz con HTML, CSS y JavaScript sin framework (ni de frontend ni
+  de compilación), servida por FastAPI. Cada pantalla y cada campo MUST cumplir el principio VIII.
+- Artefactos de la fase de Transición: se guardan en `docs/transicion/` (no en `docs/aup/`, que
+  permanece protegido por el principio I).
 - Ejecución: `uv run uvicorn app.main:app --reload`; pruebas: `uv run pytest`.
 - Añadir dependencias o tecnologías fuera de este stack requiere justificación en el plan de la
   funcionalidad y enmienda de esta constitución si es permanente.
@@ -83,7 +100,7 @@ en `tasks.md` de la iteración, de modo que ninguna se pierda ni se implemente s
 - `.specify/memory/` MUST NOT modificarse salvo petición explícita del usuario, salvo mediante el
   flujo de enmienda de la sección Governance.
 - Toda revisión de cambios MUST verificar: trazabilidad CU/RN, existencia de pruebas para las RN del alcance, respeto de
-  las capas y ausencia de credenciales.
+  las capas, ausencia de credenciales y alcance cerrado (nada sin código AUP).
 
 ## Governance
 
@@ -95,4 +112,4 @@ PATCH para aclaraciones y correcciones de redacción. Cada plan y revisión MUST
 verificación de cumplimiento de estos principios; cualquier complejidad adicional MUST justificarse
 por escrito. La guía operativa para agentes está en `AGENTS.md`.
 
-**Version**: 1.1.1 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-10
+**Version**: 1.2.0 | **Ratified**: 2026-11-10 | **Last Amended**: 2026-11-12
