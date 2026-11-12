@@ -1,36 +1,3 @@
-"Año de la Esperanza y el Fortalecimiento de la Democracia"
-
-**UNIVERSIDAD SAN IGNACIO DE LOYOLA**
-
-![](docs/aup/img/media/image14.png){width="2.9442672790901137in"
-height="2.8805686789151355in"}
-
-**Facultad de Ingeniería**
-
-**ANÁLISIS Y DISEÑO DE SISTEMAS II**
-
-**Profesor:** URRELO HUIMAN, LUIS VLADIMIR
-
-**Bloque:** DG-SMVISI06A01M
-
-**Actividad 06 - AUP a SDD**
-
-Alvaro Ravichagua, Benjamin Antony Xander (100%)
-
-Baca Policarpo, Gianfranco Fernando (100%)
-
-Bocinovich Rumay, Airton Leonardo (100%)
-
-Ingaruca Torrejon, Robin Williams (100%)
-
-Magallanes Gallardo, Sebastian Fabrizio (100%)
-
-Moreno Asparrin, Sebastian Hazell (100%)
-
-**Lima-Perú**
-
-**2026-02**
-
 Índice
 
 [**1. Enfoque AUP del proyecto 3**](#enfoque-aup-del-proyecto)
