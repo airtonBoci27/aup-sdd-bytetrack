@@ -1,25 +1,96 @@
+"Año de la Esperanza y el Fortalecimiento de la Democracia"
+
+**UNIVERSIDAD SAN IGNACIO DE LOYOLA**
+
+![](docs/aup/img/media/image14.png){width="2.9442672790901137in"
+height="2.8805686789151355in"}
+
+**Facultad de Ingeniería**
+
+**ANÁLISIS Y DISEÑO DE SISTEMAS II**
+
+**Profesor:** URRELO HUIMAN, LUIS VLADIMIR
+
+**Bloque:** DG-SMVISI06A01M
+
+**Actividad 06 - AUP a SDD**
+
+Alvaro Ravichagua, Benjamin Antony Xander (100%)
+
+Baca Policarpo, Gianfranco Fernando (100%)
+
+Bocinovich Rumay, Airton Leonardo (100%)
+
+Ingaruca Torrejon, Robin Williams (100%)
+
+Magallanes Gallardo, Sebastian Fabrizio (100%)
+
+Moreno Asparrin, Sebastian Hazell (100%)
+
+**Lima-Perú**
+
+**2026-02**
+
 Índice
 
-[**1. Enfoque AUP del proyecto 1**](#enfoque-aup-del-proyecto)
+[**1. Enfoque AUP del proyecto 3**](#enfoque-aup-del-proyecto)
 
-[**2. Fase de Inicio 3**](#fase-de-inicio)
+[**2. Fase de Inicio 4**](#fase-de-inicio)
 
-> [2.1. Visión del producto 3](#visión-del-producto)
+> [2.1. Visión del producto 4](#visión-del-producto)
 >
-> [2.2. Reglas de negocio 4](#reglas-de-negocio)
+> [2.2. Reglas de negocio 5](#reglas-de-negocio)
 >
-> [2.3. Lista de trabajo priorizada 4](#lista-de-trabajo-priorizada)
+> [2.3. Lista de trabajo priorizada 6](#lista-de-trabajo-priorizada)
 >
-> [2.4. Lista de riesgos 5](#lista-de-riesgos)
+> [2.4. Lista de riesgos 6](#lista-de-riesgos)
 >
 > [2.5. Modelo de dominio inicial y casos de uso
-> 6](#modelo-de-dominio-inicial-y-casos-de-uso)
+> 7](#modelo-de-dominio-inicial-y-casos-de-uso)
 >
-> [2.6. Arquitectura candidata 8](#arquitectura-candidata)
->
-> [Hito LCO: Objetivos del Ciclo de Vida 8](#_b8ci166qhlyn)
+> [2.6. Arquitectura candidata 9](#arquitectura-candidata)
 
-[3. Fase de elaboración 8](#fase-de-elaboración)
+[3. Fase de elaboración 9](#fase-de-elaboración)
+
+> [3.1. Modelo de requisitos: narrativas
+> 10](#modelo-de-requisitos-narrativas)
+>
+> [3.2. Prototipos de interfaz 14](#prototipos-de-interfaz)
+>
+> [3.3. Modelo de análisis: robustez 18](#modelo-de-análisis-robustez)
+>
+> [3.4. Modelo de dominio refinado 18](#modelo-de-dominio-refinado)
+>
+> [3.5. Arquitectura del sistema 18](#arquitectura-del-sistema)
+>
+> [3.6. Diseño de los casos de uso arquitectónicos
+> 18](#diseño-de-los-casos-de-uso-arquitectónicos)
+>
+> [3.6.1. CU-02 Emitir diagnóstico y presupuesto
+> 19](#cu-02-emitir-diagnóstico-y-presupuesto)
+>
+> [3.6.2. CU-04 Liquidar orden y entregar equipo
+> 20](#cu-04-liquidar-orden-y-entregar-equipo)
+>
+> [3.7. Pruebas de concepto, hito LCA 21](#pruebas-de-concepto-hito-lca)
+>
+> [3.7.2. Liquidación e idempotencia --- E2
+> 22](#liquidación-e-idempotencia-e2)
+>
+> [3.7.3. Hito LCA --- Arquitectura del Ciclo de Vida
+> 23](#hito-lca-arquitectura-del-ciclo-de-vida)
+
+[**4. Fase de construcción 23**](#fase-de-construcción)
+
+> [4.1. Plan de iteraciones 24](#plan-de-iteraciones)
+>
+> [4.2. Diagramas de clases 25](#diagramas-de-clases)
+>
+> [4.2.1. Diagrama de clases de las entidades del negocio
+> 26](#diagrama-de-clases-de-las-entidades-del-negocio)
+>
+> [4.2.2. Diagrama de clases del diseño técnico
+> 27](#diagrama-de-clases-del-diseño-técnico)
 
 # 
 
@@ -240,7 +311,7 @@ la fase de Elaboración (sección 3.4).
 
 ![Título: Modelo de dominio inicial - Descripción: Diagrama de clases
 del dominio de
-ByteTrack](docs/aup/img/media/image2.gif){width="3.9583333333333335in"
+ByteTrack](docs/aup/img/media/image4.gif){width="3.9583333333333335in"
 height="4.652777777777778in"}
 
 *Nota.* Elaboración propia.
@@ -256,7 +327,7 @@ extiende con CU-06 cuando el cliente no existe; CU-02 incluye a CU-07.
 
 ![Título: Diagrama de casos de uso - Descripción: Casos de uso de
 ByteTrack con Recepcionista y
-Técnico](docs/aup/img/media/image3.jpg){width="6.25in"
+Técnico](docs/aup/img/media/image17.jpg){width="6.25in"
 height="2.1527777777777777in"}
 
 *Nota.* El caso de uso CU-08 (Finalizar reparación, a cargo del Técnico)
@@ -294,16 +365,14 @@ arquitectónico (CU-02 para la reserva atómica de repuestos sobre stock
 libre y CU-04 para la liquidación transaccional e idempotencia de
 confirmaciones).
 
-1.  Modelo de requisitos: narrativas
+## **Modelo de requisitos: narrativas**
 
-    **CU-01 Registrar orden de servicio**
-
-    **Actor:** Recepcionista. **Precondición:** sesión iniciada y al
-    menos un Técnico disponible.
-
-    **Curso básico**
-
-<!-- -->
+> **CU-01 Registrar orden de servicio**
+>
+> **Actor:** Recepcionista. **Precondición:** sesión iniciada y al menos
+> un Técnico disponible.
+>
+> **Curso básico**
 
 1.  El Recepcionista abre la pantalla de recepción (GUI-01), ingresa el
     DNI del cliente (8 dígitos) y presiona "Buscar cliente" (CU-05).
@@ -515,32 +584,144 @@ confirmaciones).
   comprobante interno ya generado sin duplicar el cobro ni el
   comprobante.
 
-  1.  Prototipos de interfaz
+## **Prototipos de interfaz**
 
-  -------------------------------------------- ------------------------ ----------------------------
-  Pantalla                                     Actor                    Caso de uso
-  GUI-01 Recepción y orden de servicio         Recepcionista            CU-01, CU-05
-  GUI-02 Modal de registro de cliente          Recepcionista            CU-06 (extensión de CU-01)
-  Alerta en GUI-01: Serie con orden activa     Recepcionista            CU-01 (5a)
-  GUI-03 Consola de diagnóstico y cotización   Técnico de laboratorio   CU-02, CU-07
-  Alerta en GUI-03: Conflicto de stock libre   Técnico de laboratorio   CU-02 (9a)
-  GUI-04 Decisión de presupuesto               Recepcionista            CU-03
-  GUI-05 Finalizar reparación                  Técnico de laboratorio   CU-08
-  GUI-06 Cobro y entrega                       Recepcionista            CU-04
-  -------------------------------------------- ------------------------ ----------------------------
+> **Tabla 9**
+>
+> *Prototipos de Interfaz y Casos de Uso*
+
+  ------------------ ------------------ ------------------
+  Pantalla           Actor              Caso de uso
+
+  GUI-01 Recepción y Recepcionista      CU-01, CU-05
+  orden de servicio                     
+
+  GUI-02 Modal de    Recepcionista      CU-06 (extensión
+  registro de                           de CU-01)
+  cliente                               
+
+  Alerta en GUI-01:  Recepcionista      CU-01 (5a)
+  Serie con orden                       
+  activa                                
+
+  GUI-03 Consola de  Técnico de         CU-02, CU-07
+  diagnóstico y      laboratorio        
+  cotización                            
+
+  Alerta en GUI-03:  Técnico de         CU-02 (9a)
+  Conflicto de stock laboratorio        
+  libre                                 
+
+  GUI-04 Decisión de Recepcionista      CU-03
+  presupuesto                           
+
+  GUI-05 Finalizar   Técnico de         CU-08
+  reparación         laboratorio        
+
+  GUI-06 Cobro y     Recepcionista      CU-04
+  entrega                               
+  ------------------ ------------------ ------------------
 
 > *Nota.* Las pantallas GUI-01 a GUI-06 corresponden a los prototipos
 > refinados de ByteTrack v2.0, que incorporan el indicador de flujo de
 > estados y el token de idempotencia (ID OP) en el pie de cada operación
 > transaccional. Elaboración propia (2026).
+>
+> **Figura 3**
+>
+> *GUI-01: Recepción y Orden de
+> Servicio*![](docs/aup/img/media/image7.png){width="5.286126421697288in"
+> height="3.5208333333333335in"}
 
-2.  Modelo de análisis: robustez
+*Nota*. Elaboración propia (2026).
 
-3.  Modelo de dominio refinado
+**Figura 4**
 
-4.  Arquitectura del sistema
+*GUI-02: Registro de cliente*
 
-5.  Diseño de los casos de uso arquitectónicos
+*Nota*. Elaboración propia (2026).
+![](docs/aup/img/media/image10.png){width="5.278133202099737in"
+height="3.5226049868766403in"}
+
+**Figura 5**
+
+> *GUI-03: Consola de Diagnóstico y Cotización de Repuestos*
+>
+> *Nota*. Elaboración propia (2026).
+> ![](docs/aup/img/media/image15.png){width="5.567708880139983in"
+> height="3.708455818022747in"}
+>
+> **Figura 6**
+>
+> *GUI-04: Registro de Decisión de Presupuesto*
+
+![](docs/aup/img/media/image21.png){width="5.572916666666667in"
+height="3.704601924759405in"}
+
+> *Nota*. Elaboración propia (2026).
+
+**Figura 7**
+
+*GUI-05: Finalizar Reparación y Consumo de Repuestos*
+
+![](docs/aup/img/media/image22.png){width="5.572916666666667in"
+height="3.712191601049869in"}
+
+> *Nota*. Elaboración propia (2026).
+>
+> **Figura 8**
+>
+> *GUI-06: Liquidación, Cobro Único y Entrega de Equipo*
+> ![](docs/aup/img/media/image2.png){width="5.413549868766404in"
+> height="3.6090332458442695in"}
+>
+> *Nota*. Elaboración propia (2026).
+
+## **Modelo de análisis: robustez**
+
+**Diagrama de Robustez CU-01**
+
+![](docs/aup/img/media/image20.png){width="5.432292213473316in"
+height="6.821947725284339in"}
+
+**Diagrama de Robustez CU-02**
+
+![](docs/aup/img/media/image1.png){width="4.963542213473316in"
+height="6.504569116360455in"}
+
+**Diagrama de Robustez CU-03**
+
+![](docs/aup/img/media/image12.png){width="3.7031255468066493in"
+height="4.09988845144357in"}
+
+**Diagrama de Robustez CU-08**
+
+![](docs/aup/img/media/image25.png){width="3.639494750656168in"
+height="4.715047025371828in"}
+
+**Diagrama de Robustez CU-04**
+
+![](docs/aup/img/media/image5.png){width="4.723958880139983in"
+height="5.649663167104112in"}
+
+## **Modelo de dominio refinado**
+
+![](docs/aup/img/media/image9.png){width="7.516281714785652in"
+height="7.133286307961505in"}
+
+## **Arquitectura del sistema**
+
+Arquitectura de Infraestructura en AWS (sa-east-1)
+
+![](docs/aup/img/media/image23.png){width="6.620448381452318in"
+height="4.104166666666667in"}
+
+Diagrama de Componentes de Red
+
+![](docs/aup/img/media/image13.png){width="6.547531714785652in"
+height="3.9791666666666665in"}
+
+## **Diseño de los casos de uso arquitectónicos**
 
 El diseño de los casos de uso arquitectónicos de ByteTrack se concentra
 en CU-02, Emitir diagnóstico y presupuesto, y CU-04, Liquidar orden y
@@ -559,7 +740,7 @@ repositorios permiten consultar y persistir los datos. La confirmación o
 reversión de los cambios se administra mediante una unidad de trabajo
 que utiliza una misma transacción.
 
-3.6.1. CU-02 Emitir diagnóstico y presupuesto
+### **3.6.1. CU-02 Emitir diagnóstico y presupuesto** 
 
   ----------------------- -----------------------------------------------------------------------------------
   **Elemento**            **Diseño**
@@ -623,9 +804,9 @@ que utiliza una misma transacción.
 > En esta propuesta, stockDisponible conserva el nombre del modelo
 > inicial y representa las unidades físicas todavía no consumidas.
 > stockReservado representa la parte comprometida con órdenes.
->
-> **3.6.2. CU-04 Liquidar orden y entregar equipo**
->
+
+### **3.6.2. CU-04 Liquidar orden y entregar equipo**
+
 > El Recepcionista utiliza **GUI-06** para registrar el método de pago,
 > el importe y la conformidad de entrega. ServicioLiquidacion verifica
 > que la orden esté en **LISTO**, que el pago corresponda al total y que
@@ -646,51 +827,77 @@ que utiliza una misma transacción.
 > anterior; si sus datos cambian, se rechaza. Los repositorios
 > involucrados comparten una misma transacción.
 
-1.  Pruebas de concepto, hito LCA
+## **Pruebas de concepto, hito LCA**
 
-    Las pruebas de concepto verifican los mecanismos de mayor riesgo
-    antes de la Construcción. E1 se concentra en la reserva atómica de
-    repuestos; E2, en la liquidación transaccional y la idempotencia.
-
-    Para su ejecución se requiere una API de prueba, PostgreSQL,
-    usuarios con los roles correspondientes y datos controlados de
-    órdenes y repuestos. Las solicitudes concurrentes deben utilizar
-    conexiones independientes para reproducir operaciones simultáneas
-    reales.
-
-    3.7.1. Prueba de concepto de reserva atómica --- E1
-
-    **Objetivo:** verificar que las reservas no excedan las existencias
-    y que el presupuesto se confirme completamente o no produzca
-    cambios.
-
-    **Datos de prueba:** dos órdenes en RECEPCIONADO, asignadas a
-    técnicos distintos, y un repuesto con una unidad física disponible y
-    ninguna reservada.
-
-  --------------------------------------------------------------------------- -------------------------------------------------------------------------
-  **Escenario**                                                               **Resultado esperado**
-  Dos técnicos reservan simultáneamente la última unidad.                     Solo una reserva se confirma; la otra orden permanece en RECEPCIONADO.
-  Un presupuesto requiere varios repuestos y uno no tiene stock suficiente.   No se reserva ninguno ni se guarda el diagnóstico.
-  Ocurre un fallo antes de confirmar.                                         Se revierten todas las modificaciones.
-  Se repite una solicitud con el mismo ID OP.                                 No se duplican el diagnóstico ni las reservas.
-  Se emite un diagnóstico sin repuestos.                                      El total corresponde a la mano de obra y la orden pasa a PRESUPUESTADO.
-  --------------------------------------------------------------------------- -------------------------------------------------------------------------
-
-> **3.7.2. Liquidación e idempotencia --- E2**
+> Las pruebas de concepto verifican los mecanismos de mayor riesgo antes
+> de la Construcción. E1 se concentra en la reserva atómica de
+> repuestos; E2, en la liquidación transaccional y la idempotencia.
 >
+> Para su ejecución se requiere una API de prueba, PostgreSQL, usuarios
+> con los roles correspondientes y datos controlados de órdenes y
+> repuestos. Las solicitudes concurrentes deben utilizar conexiones
+> independientes para reproducir operaciones simultáneas reales.
+>
+> 3.7.1. Prueba de concepto de reserva atómica --- E1
+>
+> **Objetivo:** verificar que las reservas no excedan las existencias y
+> que el presupuesto se confirme completamente o no produzca cambios.
+>
+> **Datos de prueba:** dos órdenes en RECEPCIONADO, asignadas a técnicos
+> distintos, y un repuesto con una unidad física disponible y ninguna
+> reservada.
+
+  ---------------------------- ----------------------------
+  **Escenario**                **Resultado esperado**
+
+  Dos técnicos reservan        Solo una reserva se
+  simultáneamente la última    confirma; la otra orden
+  unidad.                      permanece en RECEPCIONADO.
+
+  Un presupuesto requiere      No se reserva ninguno ni se
+  varios repuestos y uno no    guarda el diagnóstico.
+  tiene stock suficiente.      
+
+  Ocurre un fallo antes de     Se revierten todas las
+  confirmar.                   modificaciones.
+
+  Se repite una solicitud con  No se duplican el
+  el mismo ID OP.              diagnóstico ni las reservas.
+
+  Se emite un diagnóstico sin  El total corresponde a la
+  repuestos.                   mano de obra y la orden pasa
+                               a PRESUPUESTADO.
+  ---------------------------- ----------------------------
+
+### **3.7.2. Liquidación e idempotencia --- E2**
+
 > **Objetivo:** comprobar que el pago, el comprobante y la entrega se
 > confirmen conjuntamente, sin duplicaciones.
 
-  ------------------------------------------------------------------------------------ -------------------------------------------------------
-  **Escenario**                                                                        **Resultado esperado**
-  Se registra el pago total con conformidad de entrega.                                Se genera un comprobante y la orden pasa a ENTREGADO.
-  Se repite la solicitud, incluso después de perder la respuesta.                      Se recupera el comprobante existente.
-  Se intenta liquidar simultáneamente la misma orden con identificadores diferentes.   Solo una liquidación se confirma.
-  Ocurre un fallo durante la transacción.                                              Ocurre un fallo durante la transacción.
-  El importe es incorrecto o falta conformidad.                                        Se rechaza la operación sin modificar los datos.
-  Se reutiliza un ID OP con datos distintos.                                           Se rechaza la solicitud.
-  ------------------------------------------------------------------------------------ -------------------------------------------------------
+  ---------------------------- ----------------------------
+  **Escenario**                **Resultado esperado**
+
+  Se registra el pago total    Se genera un comprobante y
+  con conformidad de entrega.  la orden pasa a ENTREGADO.
+
+  Se repite la solicitud,      Se recupera el comprobante
+  incluso después de perder la existente.
+  respuesta.                   
+
+  Se intenta liquidar          Solo una liquidación se
+  simultáneamente la misma     confirma.
+  orden con identificadores    
+  diferentes.                  
+
+  Ocurre un fallo durante la   Ocurre un fallo durante la
+  transacción.                 transacción.
+
+  El importe es incorrecto o   Se rechaza la operación sin
+  falta conformidad.           modificar los datos.
+
+  Se reutiliza un ID OP con    Se rechaza la solicitud.
+  datos distintos.             
+  ---------------------------- ----------------------------
 
 > También se verificará que un técnico no acceda a órdenes ajenas, que
 > las reglas se apliquen directamente en la API y que se cumpla **p95 ≤
@@ -700,9 +907,9 @@ que utiliza una misma transacción.
 > Las evidencias incluirán solicitudes, respuestas y consultas a la base
 > de datos antes y después de cada escenario. **Las pruebas están
 > diseñadas, pero su ejecución y resultados permanecen pendientes.**
->
-> **3.7.3. Hito LCA --- Arquitectura del Ciclo de Vida**
->
+
+### **3.7.3. Hito LCA --- Arquitectura del Ciclo de Vida**
+
 > El hito LCA permitirá iniciar Construcción cuando se verifique lo
 > siguiente:
 
@@ -716,18 +923,18 @@ que utiliza una misma transacción.
 
 - Plan de iteraciones C1--C4 y riesgos pendientes actualizados.
 
-4.  Fase de construcción
+# **Fase de construcción** 
 
-    Durante la fase de Construcción se implementarán progresivamente los
-    casos de uso de ByteTrack. Cada iteración incluirá ajuste del
-    modelo, desarrollo, pruebas, control de versiones y revisión de una
-    versión funcional.
+> Durante la fase de Construcción se implementarán progresivamente los
+> casos de uso de ByteTrack. Cada iteración incluirá ajuste del modelo,
+> desarrollo, pruebas, control de versiones y revisión de una versión
+> funcional.
+>
+> La construcción incorporará los mecanismos validados durante
+> Elaboración y conservará la trazabilidad entre reglas de negocio,
+> clases, operaciones y pruebas.
 
-    La construcción incorporará los mecanismos validados durante
-    Elaboración y conservará la trazabilidad entre reglas de negocio,
-    clases, operaciones y pruebas.
-
-4.1. Plan de iteraciones
+## **4.1. Plan de iteraciones**
 
 Se mantienen las cuatro iteraciones de dos semanas establecidas en
 Inicio.
@@ -763,7 +970,7 @@ RN-11. **No se incorpora una transición automática de RECHAZADO a LISTO
 ni se fija el cobro de S/ 40 como regla aprobada.** Esta decisión debe
 resolverse antes de implementar esa ruta en C3 y su liquidación en C4.
 
-4.2. Diagramas de clases
+## **4.2. Diagramas de clases**
 
 Se presentan dos vistas complementarias:
 
@@ -778,7 +985,7 @@ Se presentan dos vistas complementarias:
 Las clases técnicas son elementos de diseño propuestos y deberán
 incorporarse de forma consistente a la arquitectura del apartado 3.5.
 
-**4.2.1. Diagrama de clases de las entidades del negocio**
+### **4.2.1. Diagrama de clases de las entidades del negocio**
 
 Los accesorios y el estado físico se registran en OrdenServicio, porque
 pueden variar en cada ingreso del mismo equipo. El precio cotizado se
@@ -791,10 +998,10 @@ sus respectivos casos de uso.
 
 ***Figura 3: Diagrama de clases de las entidades del negocio***
 
-![](docs/aup/img/media/image4.png){width="7.703125546806649in"
+![](docs/aup/img/media/image11.png){width="7.703125546806649in"
 height="6.010416666666667in"}
 
-> **4.2.2. Diagrama de clases del diseño técnico**
+### **4.2.2. Diagrama de clases del diseño técnico**
 
 Esta vista organiza las responsabilidades de los ocho casos de uso. Las
 pantallas representan la interfaz web; los controladores representan los
@@ -805,8 +1012,22 @@ delimita las transacciones y permite que todos los repositorios
 involucrados compartan una misma conexión transaccional.
 
 ![](docs/aup/img/media/image6.png){width="7.192708880139983in"
-height="1.9073009623797026in"}![](docs/aup/img/media/image1.png){width="7.838542213473316in"
+height="1.9073009623797026in"}![](docs/aup/img/media/image3.png){width="7.838542213473316in"
 height="4.40625in"}
 
-![](docs/aup/img/media/image5.png){width="7.661458880139983in"
+![](docs/aup/img/media/image19.png){width="7.661458880139983in"
 height="3.6770833333333335in"}
+
+5.  **Implementación a SDD:\**
+    ![](docs/aup/img/media/image8.png){width="1.7460706474190726in"
+    height="2.7599179790026245in"}![](docs/aup/img/media/image18.png){width="3.7246150481189852in"
+    height="3.9194400699912513in"}**\**
+    ![](docs/aup/img/media/image26.png){width="4.125297462817148in"
+    height="4.392306430446194in"}
+
+![](docs/aup/img/media/image24.png){width="6.18503937007874in"
+height="5.666666666666667in"}
+
+![](docs/aup/img/media/image27.png){width="5.526698381452318in"
+height="5.94214457567804in"}![](docs/aup/img/media/image16.png){width="6.18503937007874in"
+height="5.625in"}
