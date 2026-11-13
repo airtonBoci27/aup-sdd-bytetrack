@@ -4,11 +4,14 @@ La base es un archivo (no memoria) para poder abrir conexiones independientes en
 pruebas de concurrencia (RN-02, RN-10).
 """
 
+import secrets
 from datetime import date
 
 import pytest
 from fastapi.testclient import TestClient
 
+from app import security
+from app.api.seguridad import get_session_seguridad
 from app.database import (
     Base,
     crear_fabrica_sesiones,
@@ -16,7 +19,28 @@ from app.database import (
     get_session,
 )
 from app.main import app
-from app.models.entities import Cliente, Equipo, OrdenServicio, Tecnico
+from app.models.entities import Cliente, Equipo, OrdenServicio, Tecnico, Usuario
+
+# RNF-02 / principio VI: ninguna contraseña ni clave de firma vive en el repositorio; se generan al
+# ejecutar las pruebas. El hash se calcula una sola vez por ejecución (scrypt es deliberadamente lento).
+_CLAVES = {
+    "RECEPCIONISTA": secrets.token_urlsafe(12),
+    "TECNICO": secrets.token_urlsafe(12),
+}
+_HASHES: dict[str, str] = {}
+
+
+def _hash_de(rol: str) -> str:
+    if rol not in _HASHES:
+        _HASHES[rol] = security.hashear_clave(_CLAVES[rol])
+    return _HASHES[rol]
+
+
+@pytest.fixture(autouse=True)
+def _entorno_de_seguridad(monkeypatch):
+    """Clave de firma generada en tiempo de ejecución; sin variables heredadas del entorno."""
+    monkeypatch.setenv("BYTETRACK_JWT_SECRET", secrets.token_urlsafe(48))
+    monkeypatch.delenv("BYTETRACK_SESION_MINUTOS", raising=False)
 
 
 @pytest.fixture
@@ -40,14 +64,91 @@ def db(fabrica_sesiones):
 
 
 @pytest.fixture
-def client(fabrica_sesiones):
+def _bd_de_prueba(fabrica_sesiones):
+    """Sobrescribe las dos dependencias de sesión con la misma base temporal (research D7)."""
+
     def _sesion():
         with fabrica_sesiones() as sesion:
             yield sesion
 
     app.dependency_overrides[get_session] = _sesion
-    yield TestClient(app)
+    app.dependency_overrides[get_session_seguridad] = _sesion
+    yield
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def crear_usuario(fabrica_sesiones):
+    """Inserta un usuario con el hash de la contraseña de prueba de su rol (RNF-02)."""
+
+    def _crear(nombre_usuario="recepcion", rol="RECEPCIONISTA", clave_hash=None):
+        with fabrica_sesiones() as s:
+            usuario = Usuario(
+                nombre_usuario=nombre_usuario, clave_hash=clave_hash or _hash_de(rol), rol=rol
+            )
+            s.add(usuario)
+            s.commit()
+            return usuario.id
+
+    return _crear
+
+
+@pytest.fixture
+def clave_de():
+    """Contraseña de prueba (generada al ejecutar) de cada rol."""
+    return lambda rol: _CLAVES[rol]
+
+
+@pytest.fixture
+def iniciar_sesion(clave_de):
+    """Inicia sesión por la API y devuelve el token (RNF-02)."""
+
+    def _iniciar(cliente, nombre_usuario="recepcion", rol="RECEPCIONISTA", clave=None):
+        respuesta = cliente.post(
+            "/auth/token",
+            data={"username": nombre_usuario, "password": clave or clave_de(rol)},
+        )
+        assert respuesta.status_code == 200, respuesta.text
+        return respuesta.json()["access_token"]
+
+    return _iniciar
+
+
+@pytest.fixture
+def client_sin_sesion(_bd_de_prueba):
+    """Cliente sin cabecera Authorization (RNF-02: debe ser rechazado)."""
+    return TestClient(app)
+
+
+def _cliente_con_sesion(token: str) -> TestClient:
+    """TestClient que siempre envía la sesión, también los clientes derivados de él.
+
+    Algunas pruebas de C1 crean otro cliente con ``type(client)(client.app, ...)``; la subclase
+    mantiene la cabecera ``Authorization`` en esos casos sin modificar esas pruebas.
+    """
+
+    class ClienteConSesion(TestClient):
+        def __init__(self, *args, **kwargs):
+            kwargs.setdefault("headers", {"Authorization": f"Bearer {token}"})
+            super().__init__(*args, **kwargs)
+
+    return ClienteConSesion(app)
+
+
+@pytest.fixture
+def client(_bd_de_prueba, crear_usuario, iniciar_sesion):
+    """Cliente con sesión de Recepcionista, para que las pruebas de C1 no cambien (RNF-02)."""
+    crear_usuario("recepcion", "RECEPCIONISTA")
+    token = iniciar_sesion(TestClient(app), "recepcion", "RECEPCIONISTA")
+    return _cliente_con_sesion(token)
+
+
+@pytest.fixture
+def client_tecnico(_bd_de_prueba, crear_usuario, iniciar_sesion):
+    """Cliente con sesión de Técnico (RNF-02: rol sin acceso a recepción)."""
+    crear_usuario("tecnico", "TECNICO")
+    token = iniciar_sesion(TestClient(app), "tecnico", "TECNICO")
+    return _cliente_con_sesion(token)
 
 
 # ---- Fábricas de datos (insertan directamente en la base) ------------------------------

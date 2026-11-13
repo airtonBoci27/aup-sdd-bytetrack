@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ByteTrack · Recepción</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+  <script type="module" src="/js/app.js"></script>
+</head>
+<body>
+  <!-- Encabezado de GUI-01 y GUI-02. Visible con sesión (recepción o rechazo por rol). -->
+  <header class="encabezado" hidden>
+    <span id="encabezado-titulo" data-trace="GUI-01" class="encabezado__titulo">ByteTrack v2.0 · Recepción <small>GUI-01 · CU-01 / CU-05</small></span>
+    <span class="encabezado__sesion">
+      <span id="sesion-etiqueta" data-trace="GUI-01 RNF-02" hidden>Recepcionista · sesión activa</span>
+      <button id="cerrar-sesion" data-trace="RNF-02" type="button" class="boton boton--secundario">Cerrar sesión</button>
+    </span>
+  </header>
+
+  <main>
+    <!-- Inicio de sesión (RNF-02; precondición de CU-01) -->
+    <section id="vista-login" data-trace="RNF-02" class="tarjeta tarjeta--estrecha">
+      <h1>ByteTrack · Iniciar sesión</h1>
+      <form novalidate>
+        <label for="login-usuario">Usuario</label>
+        <input id="login-usuario" data-trace="RNF-02" type="text" autocomplete="username" required>
+        <label for="login-clave">Contraseña</label>
+        <input id="login-clave" data-trace="RNF-02" type="password" autocomplete="current-password" required>
+        <p id="login-error" data-trace="RNF-02" class="mensaje mensaje--error" role="alert" hidden></p>
+        <button id="login-entrar" data-trace="RNF-02" type="submit" class="boton boton--primario">Iniciar sesión</button>
+      </form>
+    </section>
+
+    <!-- Rechazo por rol (RNF-02) -->
+    <section id="vista-rechazo-rol" data-trace="RNF-02" class="tarjeta tarjeta--estrecha" hidden>
+      <p id="rechazo-mensaje" data-trace="RNF-02" class="mensaje mensaje--error" role="alert">Su rol no tiene acceso a las operaciones de recepción</p>
+    </section>
+
+    <!-- Recepción (GUI-01) con el modal de registro de cliente (GUI-02) -->
+    <section id="vista-recepcion" data-trace="GUI-01" hidden>
+      <!-- Indicador de flujo de estados: solo informativo -->
+      <div id="flujo-estados" data-trace="GUI-01" class="flujo">
+        <span>Estado al terminar:</span>
+        <span class="flujo__estado flujo__estado--actual">Recepcionado</span>
+        <span class="flujo__estado">Presupuestado</span>
+        <span class="flujo__estado">Aprobado</span>
+        <span class="flujo__estado">Listo</span>
+        <span class="flujo__estado">Entregado</span>
+      </div>
+
+      <!-- 1. Cliente (CU-05; RF-01) -->
+      <section class="tarjeta">
+        <h2>1. Cliente (CU-05)</h2>
+        <div class="fila fila--cliente">
+          <div>
+            <label for="dni">DNI (8 dígitos)</label>
+            <input id="dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
+          </div>
+          <button id="buscar-cliente" data-trace="RF-01" type="button" class="boton boton--primario">Buscar cliente</button>
+          <button id="registrar-cliente-abrir" data-trace="RF-01" type="button" class="boton" disabled>Registrar nuevo cliente</button>
+        </div>
+        <p id="dni-error" data-trace="RN-01" class="mensaje mensaje--error" role="alert" hidden>El DNI debe tener 8 dígitos</p>
+        <p id="cliente-resumen" data-trace="RF-01" class="cliente-resumen" aria-live="polite"></p>
+      </section>
+
+      <!-- 2. Equipo (RF-01 / RF-02) -->
+      <section class="tarjeta">
+        <h2>2. Equipo (RF-01 / RF-02)</h2>
+        <div class="fila">
+          <div>
+            <label for="equipo-selector">Equipos del cliente</label>
+            <select id="equipo-selector" data-trace="RF-01">
+              <option value="">Ingresar equipo nuevo</option>
+            </select>
+          </div>
+          <div>
+            <label for="equipo-tipo">Tipo</label>
+            <input id="equipo-tipo" data-trace="RF-01" type="text" autocomplete="off">
+          </div>
+          <div>
+            <label for="equipo-marca">Marca</label>
+            <input id="equipo-marca" data-trace="RF-01" type="text" autocomplete="off">
+          </div>
+          <div>
+            <label for="equipo-modelo">Modelo</label>
+            <input id="equipo-modelo" data-trace="RF-01" type="text" autocomplete="off">
+          </div>
+          <div>
+            <label for="equipo-serie">N.° de serie</label>
+            <input id="equipo-serie" data-trace="RF-01 RN-01" type="text" autocomplete="off">
+          </div>
+        </div>
+        <div class="fila--accesorios">
+          <label><input id="acc-cargador" data-trace="RF-02" type="checkbox"> Cargador original</label>
+          <label><input id="acc-funda" data-trace="RF-02" type="checkbox"> Funda / maletín</label>
+        </div>
+        <label for="estado-fisico">Estado físico al ingreso (obligatorio)</label>
+        <input id="estado-fisico" data-trace="RF-02" type="text" autocomplete="off">
+        <!-- Alerta E01 (CU-01 curso 5a; RN-02) -->
+        <p id="alerta-e01" data-trace="RF-02 RN-02" class="mensaje mensaje--error" role="alert" hidden></p>
+      </section>
+
+      <!-- 3. Orden de servicio (CU-01; RF-02) -->
+      <section class="tarjeta">
+        <h2>3. Orden de servicio</h2>
+        <label for="falla">Falla reportada por el cliente (obligatorio)</label>
+        <textarea id="falla" data-trace="RF-02"></textarea>
+        <div class="fila">
+          <div>
+            <label for="tecnico">Técnico disponible (solo disponibles)</label>
+            <select id="tecnico" data-trace="RF-02 RN-03"></select>
+          </div>
+          <div>
+            <label for="costo-revision">Costo de revisión</label>
+            <input id="costo-revision" data-trace="RF-02" type="text" readonly>
+          </div>
+          <p id="estado-inicial" data-trace="GUI-01" class="estado-inicial">Estado inicial: RECEPCIONADO</p>
+        </div>
+      </section>
+
+      <!-- Resultados y pie de GUI-01 -->
+      <p id="alerta-error" data-trace="RF-02 RNF-04" class="mensaje mensaje--error" role="alert" hidden></p>
+      <p id="confirmacion-orden" data-trace="RF-02" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+      <div class="pie">
+        <span id="id-operacion" data-trace="RNF-04" class="id-operacion"></span>
+        <div class="pie__acciones">
+          <button id="cancelar-orden" data-trace="GUI-01" type="button" class="boton">Cancelar</button>
+          <button id="generar-orden" data-trace="RF-02" type="button" class="boton boton--primario">Generar orden de servicio</button>
+        </div>
+      </div>
+
+      <!-- GUI-02: modal «Registrar nuevo cliente · CU-06» (RF-01) -->
+      <div id="modal-cliente" data-trace="GUI-02" class="modal" role="dialog" aria-modal="true" aria-label="Registrar nuevo cliente" hidden>
+        <div class="modal__caja">
+          <h2 class="modal__titulo">Registrar nuevo cliente · CU-06 / GUI-02</h2>
+          <div class="modal__cuerpo">
+            <label for="cli-dni">DNI (*)</label>
+            <input id="cli-dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
+            <small class="nota">8 dígitos. Si ya existe se avisa «El DNI ya está registrado» y se abre el cliente existente, sin duplicar.</small>
+            <div class="fila">
+              <div>
+                <label for="cli-nombres">Nombres (*)</label>
+                <input id="cli-nombres" data-trace="RF-01" type="text" autocomplete="off">
+              </div>
+              <div>
+                <label for="cli-apellidos">Apellidos (*)</label>
+                <input id="cli-apellidos" data-trace="RF-01" type="text" autocomplete="off">
+              </div>
+              <div>
+                <label for="cli-telefono">Teléfono (*)</label>
+                <input id="cli-telefono" data-trace="RF-01" type="text" inputmode="tel" autocomplete="off">
+              </div>
+              <div>
+                <label for="cli-correo">Correo (opcional)</label>
+                <input id="cli-correo" data-trace="RF-01" type="text" inputmode="email" autocomplete="off">
+              </div>
+            </div>
+            <p id="cli-aviso" data-trace="RF-01 RN-01" class="mensaje mensaje--aviso" role="status" hidden>El DNI ya está registrado</p>
+            <p id="cli-error" data-trace="RF-01" class="mensaje mensaje--error" role="alert" hidden></p>
+            <div class="modal__pie">
+              <span id="cli-nota" data-trace="GUI-02" class="nota">(*) campo obligatorio · al guardar vuelve a GUI-01 con el cliente cargado</span>
+              <span class="pie__acciones">
+                <button id="cli-cancelar" data-trace="GUI-02" type="button" class="boton">Cancelar</button>
+                <button id="cli-guardar" data-trace="RF-01" type="button" class="boton boton--primario">Guardar cliente</button>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

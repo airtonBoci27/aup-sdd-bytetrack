@@ -15,6 +15,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.types import TypeDecorator
 
+from app.config import ROL_RECEPCIONISTA, ROL_TECNICO  # noqa: F401  (RNF-02)
 from app.database import Base
 
 ESTADO_RECEPCIONADO = "RECEPCIONADO"
@@ -128,3 +129,30 @@ class OperacionIdempotente(Base):
     huella: Mapped[str] = mapped_column(String, nullable=False)  # SHA-256 de la solicitud
     orden_id: Mapped[int] = mapped_column(ForeignKey("orden_servicio.id"), nullable=False)
     resultado: Mapped[str] = mapped_column(Text, nullable=False)  # JSON de la respuesta original
+
+
+class Usuario(Base):
+    """Usuario del sistema con su rol (RNF-02). Solo se carga con ``app.seed``; no se gestiona."""
+
+    __tablename__ = "usuario"
+    __table_args__ = (
+        CheckConstraint(
+            f"rol IN ('{ROL_RECEPCIONISTA}','{ROL_TECNICO}')", name="ck_usuario_rol"
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nombre_usuario: Mapped[str] = mapped_column(String, unique=True, nullable=False)
+    # Formato scrypt$n$r$p$sal$hash; nunca la contraseña (principio VI).
+    clave_hash: Mapped[str] = mapped_column(String, nullable=False)
+    rol: Mapped[str] = mapped_column(String, nullable=False)
+
+
+class TokenRevocado(Base):
+    """Sesión cerrada: ``jti`` del token con su expiración (RNF-02, «sesiones activas»)."""
+
+    __tablename__ = "token_revocado"
+
+    jti: Mapped[str] = mapped_column(String, primary_key=True)
+    # Segundos desde la época, UTC.
+    expira_en: Mapped[int] = mapped_column(Integer, nullable=False)

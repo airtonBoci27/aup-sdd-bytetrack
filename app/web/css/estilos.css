@@ -1,0 +1,111 @@
+/* ByteTrack · interfaz de recepción. Colores y distribución de los prototipos GUI-01 y GUI-02. */
+:root {
+  --azul-marino: #1e2d4f;
+  --fondo: #eef1f7;
+  --tarjeta: #ffffff;
+  --borde: #c7cfdd;
+  --texto: #1f2937;
+  --texto-suave: #5b6578;
+  --primario: #1d4ed8;
+  --primario-texto: #ffffff;
+  --secundario: #e9ecf3;
+  --error: #b91c1c;
+  --error-fondo: #fef2f2;
+  --ok: #166534;
+  --ok-fondo: #ecfdf5;
+  --aviso: #92400e;
+  --aviso-fondo: #fffbeb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 16px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+[hidden] { display: none !important; }
+
+main { max-width: 1100px; margin: 0 auto; padding: 16px; }
+
+/* Encabezado */
+.encabezado {
+  display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+  background: var(--azul-marino); color: #fff; padding: 12px 16px;
+}
+.encabezado__titulo { font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+.encabezado__titulo small { font-weight: 600; opacity: .75; margin-left: 6px; }
+.encabezado__sesion { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* Tarjetas y formularios */
+.tarjeta {
+  background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 8px;
+  padding: 16px; margin-bottom: 16px;
+}
+.tarjeta--estrecha { max-width: 420px; margin: 32px auto; }
+.tarjeta h1, .tarjeta h2 { margin: 0 0 12px; font-size: 1rem; letter-spacing: .04em; text-transform: uppercase; color: var(--azul-marino); }
+
+label { display: block; font-size: .9rem; color: var(--texto-suave); margin: 10px 0 4px; }
+input[type="text"], input[type="password"], select, textarea {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--borde); border-radius: 6px;
+  font: inherit; color: var(--texto); background: #fff;
+}
+input:disabled, select:disabled, textarea:disabled, input[readonly] { background: #f3f4f7; color: var(--texto-suave); }
+textarea { min-height: 76px; resize: vertical; }
+[aria-invalid="true"] { border-color: var(--error); background: var(--error-fondo); }
+
+/* Cuadrículas de GUI-01 */
+.fila { display: grid; gap: 12px 16px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); align-items: end; }
+.fila--cliente { grid-template-columns: minmax(180px, 1fr) auto auto; }
+.fila--accesorios { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 10px 0; }
+.fila--accesorios label { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--texto); }
+
+/* Botones */
+.boton {
+  font: inherit; font-weight: 600; padding: 10px 16px; border-radius: 6px; border: 1px solid var(--borde);
+  cursor: pointer; background: var(--secundario); color: var(--texto);
+}
+.boton--primario { background: var(--primario); border-color: var(--primario); color: var(--primario-texto); }
+.boton--secundario { background: var(--secundario); }
+.encabezado .boton--secundario { background: transparent; color: #fff; border-color: rgba(255,255,255,.5); }
+.boton:disabled { opacity: .5; cursor: not-allowed; }
+.boton:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #93c5fd; outline-offset: 1px; }
+
+/* Mensajes y alertas */
+.mensaje { margin: 10px 0; padding: 10px 12px; border-radius: 6px; }
+.mensaje--error { color: var(--error); background: var(--error-fondo); border: 1px solid var(--error); }
+.mensaje--ok { color: var(--ok); background: var(--ok-fondo); border: 1px solid #86efac; }
+.mensaje--aviso { color: var(--aviso); background: var(--aviso-fondo); border: 1px solid #fcd34d; }
+.mensaje--info { color: var(--texto-suave); padding-left: 0; }
+.cliente-resumen { margin: 10px 0 0; }
+.cliente-resumen strong { font-size: 1.05rem; }
+.texto-ok { color: var(--ok); font-weight: 600; }
+.estado-inicial { color: var(--primario); font-weight: 700; align-self: center; text-align: right; }
+
+/* Indicador de flujo de estados (solo informativo) */
+.flujo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; color: var(--texto-suave); font-size: .9rem; }
+.flujo__estado { padding: 4px 12px; border-radius: 999px; background: #e2e7f1; }
+.flujo__estado--actual { background: var(--primario); color: #fff; font-weight: 600; }
+
+/* Pie de GUI-01 */
+.pie { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: center; justify-content: space-between; margin-top: 8px; }
+.pie__acciones { display: flex; gap: 12px; flex-wrap: wrap; }
+.id-operacion { color: var(--texto-suave); font-size: .9rem; }
+
+/* Modal GUI-02 */
+.modal {
+  position: fixed; inset: 0; background: rgba(30, 45, 79, .55); display: flex;
+  align-items: center; justify-content: center; padding: 16px; z-index: 10;
+}
+.modal__caja { background: #fff; border-radius: 8px; width: min(560px, 100%); overflow: hidden; border: 1px solid var(--borde); }
+.modal__titulo { background: var(--azul-marino); color: #fff; margin: 0; padding: 14px 16px; font-size: 1rem; text-transform: uppercase; }
+.modal__cuerpo { padding: 12px 16px 16px; }
+.modal__pie { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 14px; }
+.nota { color: var(--texto-suave); font-size: .85rem; }
+
+@media (max-width: 640px) {
+  .fila--cliente { grid-template-columns: 1fr; }
+  .estado-inicial { text-align: left; }
+}

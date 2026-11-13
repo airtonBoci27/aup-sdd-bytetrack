@@ -239,10 +239,7 @@ GUI-01 muestra en su pie el **ID de operación** («ID de operación OP-… · r
 - Gestión de usuarios: altas, roles, cambio o recuperación de contraseña.
 - Pantallas y casos de uso GUI-03 a GUI-06, E02, CU-02, CU-03, CU-04, CU-07 y CU-08, y cualquier pantalla para el Técnico.
 - Impresión real del comprobante de orden.
-- Cualquier cambio en las reglas de negocio de C1.
-- **Limitación conocida de RNF-02, para una iteración futura**: igualar el tiempo de respuesta del inicio de sesión entre «usuario inexistente» y «contraseña incorrecta». Sin esa igualación, quien mida los tiempos podría deducir qué nombres de usuario existen. AUP no lo exige (origen: ninguno en `docs/aup/`); el mensaje de error es el mismo en ambos casos (FR-002).
 
-**Pendientes registrados (principio VII)**:
 
 | Código | Descripción | Iteración prevista |
 |--------|-------------|--------------------|

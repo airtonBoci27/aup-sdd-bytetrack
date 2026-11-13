@@ -144,7 +144,8 @@ def test_rn03_solo_tecnicos_disponibles_en_lista(client, crear_tecnico):
 
     assert respuesta.status_code == 200
     assert [t["id"] for t in respuesta.json()] == [disponible]
-    assert set(respuesta.json()[0]) == {"id", "nombres", "apellidos"}
+    # 002 (FR-019): se agregó `cola` como dato de solo lectura; el conjunto de técnicos no cambia.
+    assert set(respuesta.json()[0]) == {"id", "nombres", "apellidos", "cola"}
 
 
 def test_rn03_tecnico_no_disponible_rechazado(client, crear_cliente, crear_equipo, crear_tecnico, leer):

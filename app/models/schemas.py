@@ -63,6 +63,7 @@ class TecnicoOut(_Salida):
     id: int
     nombres: str
     apellidos: str
+    cola: int  # CU-01 paso 6 / GUI-01 («N en cola»); dato de solo lectura
 
 
 class TecnicoResumenOut(_Salida):
@@ -126,3 +127,14 @@ class ErrorOut(BaseModel):
     codigo: str
     mensaje: str
     detalle: dict = Field(default_factory=dict)
+
+
+# ---- Acceso por rol (RNF-02) ---------------------------------------------------------
+
+
+class TokenOut(BaseModel):
+    """Respuesta del inicio de sesión (flujo OAuth2 de contraseña). ``rol`` es informativo."""
+
+    access_token: str
+    token_type: str = "bearer"
+    rol: str

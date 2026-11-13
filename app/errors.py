@@ -6,6 +6,7 @@ class ErrorDominio(Exception):
 
     status_http = 400
     codigo = "ERROR_DOMINIO"
+    headers: dict[str, str] = {}  # cabeceras extra de la respuesta (p. ej. WWW-Authenticate)
 
     def __init__(self, mensaje: str, detalle: dict | None = None):
         super().__init__(mensaje)
@@ -98,3 +99,38 @@ class SerieEnOtroCliente(ErrorDominio):
         super().__init__(
             f"El número de serie {numero_serie} ya está registrado para otro cliente"
         )
+
+
+# ---- Acceso por rol (RNF-02) ---------------------------------------------------------
+
+
+class CredencialesInvalidas(ErrorDominio):
+    """RNF-02: usuario inexistente o contraseña incorrecta al iniciar sesión."""
+
+    status_http = 401
+    codigo = "CREDENCIALES_INVALIDAS"
+    headers = {"WWW-Authenticate": "Bearer"}
+
+    def __init__(self):
+        super().__init__("Usuario o contraseña incorrectos")
+
+
+class NoAutenticado(ErrorDominio):
+    """RNF-02: no hay sesión activa (sin token, vencido, firma inválida, cerrada o usuario inexistente)."""
+
+    status_http = 401
+    codigo = "NO_AUTENTICADO"
+    headers = {"WWW-Authenticate": "Bearer"}
+
+    def __init__(self):
+        super().__init__("Debe iniciar sesión")
+
+
+class RolNoPermitido(ErrorDominio):
+    """RNF-02: las operaciones de recepción están restringidas al rol Recepcionista."""
+
+    status_http = 403
+    codigo = "ROL_NO_PERMITIDO"
+
+    def __init__(self):
+        super().__init__("Su rol no tiene acceso a las operaciones de recepción")

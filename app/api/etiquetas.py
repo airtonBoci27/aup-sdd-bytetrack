@@ -3,6 +3,7 @@
 CU05_GUI01 = "CU-05 · GUI-01"
 CU06_GUI02 = "CU-06 · GUI-02"
 CU01_GUI01 = "CU-01 · GUI-01"
+CU01_ACCESO = "CU-01 · Acceso (RNF-02)"
 
 METADATOS_ETIQUETAS = [
     {"name": CU05_GUI01, "description": "CU-05 Buscar cliente (pantalla GUI-01 Recepción)."},
@@ -10,5 +11,9 @@ METADATOS_ETIQUETAS = [
     {
         "name": CU01_GUI01,
         "description": "CU-01 Registrar orden de servicio (pantalla GUI-01 Recepción).",
+    },
+    {
+        "name": CU01_ACCESO,
+        "description": "Inicio y cierre de sesión; precondición de CU-01 («sesión iniciada») y RNF-02.",
     },
 ]

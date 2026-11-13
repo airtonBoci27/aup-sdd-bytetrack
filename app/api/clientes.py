@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Path, Response, status
 from sqlalchemy.orm import Session
 
 from app.api.etiquetas import CU05_GUI01, CU06_GUI02
+from app.api.seguridad import exigir_recepcionista
 from app.database import get_session
 from app.models.schemas import (
     PATRON_DNI,
@@ -16,7 +17,13 @@ from app.models.schemas import (
 )
 from app.services import cliente_service
 
-router = APIRouter()
+router = APIRouter(
+    dependencies=[Depends(exigir_recepcionista)],  # RNF-02: sesión activa con rol Recepcionista
+    responses={
+        401: {"model": ErrorOut, "description": "Sin sesión activa (RNF-02)"},
+        403: {"model": ErrorOut, "description": "Rol sin acceso a recepción (RNF-02)"},
+    },
+)
 
 
 @router.get(
@@ -27,7 +34,8 @@ router = APIRouter()
     description=(
         "CU-05 (GUI-01): busca un cliente por DNI y devuelve sus datos y los equipos ya "
         "registrados para el selector (CU-01 pasos 1-2). **RN-01**: el DNI son 8 dígitos. "
-        "Si el DNI no existe responde 404 con `habilitar_registro` (CU-01 curso 2a)."
+        "Si el DNI no existe responde 404 con `habilitar_registro` (CU-01 curso 2a). "
+        "**RNF-02**: exige sesión activa con rol Recepcionista."
     ),
     responses={404: {"model": ErrorOut}},
 )
@@ -48,7 +56,8 @@ def buscar_cliente(
         "CU-06 (GUI-02): registra un cliente con DNI, nombres, apellidos, teléfono y correo "
         "opcional (CU-01 curso 2a). **RN-01**: el DNI es único; si ya está registrado responde "
         "200 con `ya_registrado=true` y el aviso «El DNI ya está registrado», y devuelve al "
-        "cliente existente sin duplicarlo (CU-01 curso 2b)."
+        "cliente existente sin duplicarlo (CU-01 curso 2b). "
+        "**RNF-02**: exige sesión activa con rol Recepcionista."
     ),
     responses={200: {"model": RegistroClienteOut, "description": "DNI ya registrado (curso 2b)"}},
 )

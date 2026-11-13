@@ -61,7 +61,7 @@ uv run pytest
 | `tests/test_cu01_tecnicos_cola.py` | RN-03 / CU-01 paso 6: `cola` en técnicos disponibles |
 | `tests/test_interfaz_estatica.py` | Servicio de la interfaz, trazabilidad de cada elemento (`data-trace`, ids del contrato de interfaz) y `.env.example` sin valores secretos |
 | `tests/test_trazabilidad_swagger.py` | Actualizado: 7 operaciones, las de acceso con su etiqueta |
-| Pruebas de C1 (`tests/test_cu0*.py`) | Sin cambios; pasan con el fixture `client` autenticado como Recepcionista |
+| Pruebas de C1 (`tests/test_cu0*.py`) | Pasan con el fixture `client` autenticado como Recepcionista. Único cambio: `test_rn03_solo_tecnicos_disponibles_en_lista` ahora espera el campo `cola` (FR-019) |
 
 Criterio de aceptación: `uv run pytest` pasa completo (con `RNF-02` probado en la API y los casos `CU-01-<curso>` de 001 sin cambios) y la lista de verificación manual queda completada y registrada.
 
