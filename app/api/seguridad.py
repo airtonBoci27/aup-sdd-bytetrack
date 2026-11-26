@@ -12,7 +12,7 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from app.database import _fabrica_por_defecto
+from app.database import obtener_fabrica_sesiones
 from app.models.entities import Usuario
 from app.services import auth_service
 
@@ -22,7 +22,7 @@ esquema_oauth2 = OAuth2PasswordBearer(tokenUrl="/auth/token", auto_error=False)
 
 def get_session_seguridad() -> Iterator[Session]:
     """Dependencia de FastAPI: sesión breve e independiente para verificar la sesión (RNF-02)."""
-    with _fabrica_por_defecto()() as sesion:
+    with obtener_fabrica_sesiones()() as sesion:
         yield sesion
 
 
@@ -35,5 +35,10 @@ def usuario_actual(
 
 
 def exigir_recepcionista(usuario: Usuario = Depends(usuario_actual)) -> Usuario:
-    """RNF-02: exige sesión activa con rol Recepcionista (CU-01, CU-05, CU-06)."""
+    """RNF-02: exige sesión activa con rol Recepcionista (CU-01, CU-03, CU-04, CU-05, CU-06)."""
     return auth_service.exigir_recepcionista(usuario)
+
+
+def exigir_tecnico(usuario: Usuario = Depends(usuario_actual)) -> Usuario:
+    """RNF-02: exige sesión activa con rol Técnico de laboratorio (CU-02, CU-07, CU-08)."""
+    return auth_service.exigir_tecnico(usuario)

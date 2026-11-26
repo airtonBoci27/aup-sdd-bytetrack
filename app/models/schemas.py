@@ -1,12 +1,14 @@
 """Esquemas Pydantic de entrada y salida (ver contracts/api-c1.md)."""
 
 from decimal import Decimal
-from typing import Annotated
+import re
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator, model_validator
 
 # RN-01: el DNI son exactamente 8 dígitos numéricos.
 PATRON_DNI = r"^[0-9]{8}$"
+_PATRON_CORREO = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 DniStr = Annotated[str, StringConstraints(pattern=PATRON_DNI)]
 TextoObligatorio = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
@@ -28,6 +30,15 @@ class ClienteIn(_Entrada):
     apellidos: TextoObligatorio
     telefono: TextoObligatorio
     correo: str | None = None
+
+    @field_validator("correo")
+    @classmethod
+    def _validar_correo(cls, valor: str | None) -> str | None:
+        if valor is None or valor == "":
+            return None
+        if not _PATRON_CORREO.fullmatch(valor):
+            raise ValueError("El correo electrónico no tiene un formato válido")
+        return valor
 
 
 class ClienteOut(_Salida):
@@ -138,3 +149,157 @@ class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
     rol: str
+
+
+# ---- Seguimiento, Laboratorio, Decisión y Liquidación (CU-02, 03, 04, 07, 08) --------
+
+
+class RepuestoOut(_Salida):
+    id: int
+    sku: str
+    nombre: str
+    stock_disponible: int
+    stock_reservado: int
+    stock_libre: int
+    precio_unitario: Decimal
+
+
+class PaginaRepuestosOut(BaseModel):
+    items: list[RepuestoOut]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+
+class DetalleRepuestoOut(_Salida):
+    repuesto_id: int
+    sku: str
+    nombre: str
+    cantidad: int
+    precio_cotizado: Decimal
+    subtotal: Decimal
+    estado_reserva: str
+
+
+class DiagnosticoOut(_Salida):
+    informe_tecnico: str
+    costo_mano_obra: Decimal
+    subtotal_repuestos: Decimal
+    total_presupuesto: Decimal
+    fecha_emision: str
+    detalles: list[DetalleRepuestoOut]
+
+
+class ComprobantePagoOut(_Salida):
+    numero: str
+    metodo_pago: str
+    monto_total: Decimal
+    fecha_emision: str
+    conformidad_entrega: bool
+
+
+class OrdenDetalleOut(BaseModel):
+    codigo: str
+    estado: str
+    fecha_ingreso: str
+    cliente: ClienteOut
+    equipo: EquipoOut
+    tecnico: TecnicoResumenOut
+    accesorios: str | None = None
+    estado_fisico: str
+    falla_reportada: str
+    costo_revision: Decimal
+    diagnostico: DiagnosticoOut | None = None
+    decision_canal: str | None = None
+    decision_fecha: str | None = None
+    decision_evidencia: str | None = None
+    trabajo_realizado: str | None = None
+    prueba_conforme: bool | None = None
+    resultado_prueba: str | None = None
+    comprobante: ComprobantePagoOut | None = None
+
+
+class PaginaOrdenesOut(BaseModel):
+    items: list[OrdenDetalleOut]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+
+class ResumenTallerOut(BaseModel):
+    total_ordenes: int
+    por_estado: dict[str, int]
+    tecnicos_disponibles: int
+    repuestos_stock_bajo: int
+
+
+class TecnicoCargaOut(_Salida):
+    id: int
+    nombres: str
+    apellidos: str
+    disponible: bool
+    cola: int
+
+
+class PaginaClientesOut(BaseModel):
+    items: list[BusquedaClienteOut]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+
+
+class ItemRepuestoIn(_Entrada):
+    repuesto_id: int
+    cantidad: int = Field(gt=0)
+
+
+class DiagnosticoIn(_Entrada):
+    id_op: TextoObligatorio
+    informe_tecnico: TextoObligatorio
+    costo_mano_obra: Decimal = Field(ge=Decimal("0.00"))
+    repuestos: list[ItemRepuestoIn] = Field(default_factory=list)
+
+
+class EmitirDiagnosticoOut(BaseModel):
+    orden: OrdenDetalleOut
+    reintento: bool = False
+
+
+class DecisionIn(_Entrada):
+    id_op: TextoObligatorio
+    decision: Literal["APROBADO", "RECHAZADO"]
+    canal: Literal["WHATSAPP", "LLAMADA", "PRESENCIAL"]
+    evidencia: TextoObligatorio
+
+
+class RegistrarDecisionOut(BaseModel):
+    orden: OrdenDetalleOut
+    reintento: bool = False
+
+
+class FinalizarReparacionIn(_Entrada):
+    id_op: TextoObligatorio
+    trabajo_realizado: TextoObligatorio
+    prueba_conforme: bool
+    resultado_prueba: TextoObligatorio
+
+
+class FinalizarReparacionOut(BaseModel):
+    orden: OrdenDetalleOut
+    reintento: bool = False
+
+
+class LiquidarOrdenIn(_Entrada):
+    id_op: TextoObligatorio
+    metodo_pago: Literal["EFECTIVO", "TARJETA", "TRANSFERENCIA"]
+    monto_recibido: Decimal = Field(ge=Decimal("0.00"))
+    conformidad_entrega: bool
+
+
+class LiquidarOrdenOut(BaseModel):
+    orden: OrdenDetalleOut
+    comprobante: ComprobantePagoOut
+    reintento: bool = False

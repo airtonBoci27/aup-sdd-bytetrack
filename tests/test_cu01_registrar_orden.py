@@ -250,6 +250,30 @@ def test_cu01_B_correlativo_se_reinicia_cada_anio(
     assert r.json()["orden"]["codigo"] == f"OS-{date.today().year}-0001"
 
 
+def test_cu01_B_correlativo_no_colisiona_si_hay_huecos(
+    client, crear_cliente, crear_equipo, crear_tecnico, crear_orden, fabrica_sesiones
+):
+    """CU-01-B: si existe un hueco en los correlativos del año, toma el máximo numérico + 1."""
+    from app.models.entities import OrdenServicio
+
+    anio = date.today().year
+    cliente_id = crear_cliente()
+    equipo_previo = crear_equipo(cliente_id, numero_serie="SN-HUECO")
+    tecnico_id = crear_tecnico()
+    crear_orden(equipo_previo, tecnico_id, estado="ENTREGADO")
+    with fabrica_sesiones() as s:
+        s.query(OrdenServicio).update({OrdenServicio.codigo: f"OS-{anio}-0005"})
+        s.commit()
+
+    r = client.post(
+        "/ordenes",
+        json=_solicitud(id_op="op-hueco-0001", equipo=_equipo_nuevo("SN-NUEVO-H"), tecnico_id=tecnico_id),
+    )
+
+    assert r.status_code == 201
+    assert r.json()["orden"]["codigo"] == f"OS-{anio}-0006"
+
+
 def test_cu01_B_fallo_no_deja_datos_parciales(client, crear_cliente, crear_tecnico, leer, monkeypatch):
     """CU-01-B: la operación es atómica; si falla a mitad no queda equipo, orden ni cola."""
     from app.models.entities import Equipo, OrdenServicio, Tecnico

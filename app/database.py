@@ -66,8 +66,13 @@ def obtener_motor() -> Engine:
 
 
 @lru_cache(maxsize=1)
-def _fabrica_por_defecto() -> sessionmaker[Session]:
+def obtener_fabrica_sesiones() -> sessionmaker[Session]:
+    """Fábrica de sesiones por defecto asociada al motor de la aplicación."""
     return crear_fabrica_sesiones(obtener_motor())
+
+
+# Alias de compatibilidad interna.
+_fabrica_por_defecto = obtener_fabrica_sesiones
 
 
 def crear_tablas(motor: Engine | None = None) -> None:
@@ -79,5 +84,5 @@ def crear_tablas(motor: Engine | None = None) -> None:
 
 def get_session() -> Iterator[Session]:
     """Dependencia de FastAPI: una sesión por solicitud; revierte lo no confirmado al cerrar."""
-    with _fabrica_por_defecto()() as sesion:
+    with obtener_fabrica_sesiones()() as sesion:
         yield sesion

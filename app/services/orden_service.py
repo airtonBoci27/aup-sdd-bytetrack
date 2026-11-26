@@ -151,10 +151,10 @@ def _registrar(sesion: Session, datos: OrdenIn) -> tuple[CrearOrdenOut, bool]:
             raise OrdenActivaError(activa.codigo)  # alerta E01
 
     # CU-01 paso 4: precondición y RN-03 (solo técnico disponible, revalidado en la transacción).
-    if not tecnicos.listar_disponibles():
-        raise SinTecnicosDisponibles()
     tecnico = tecnicos.obtener(datos.tecnico_id)
     if tecnico is None or not tecnico.disponible:
+        if not tecnicos.hay_disponibles():
+            raise SinTecnicosDisponibles()
         raise TecnicoNoDisponible(datos.tecnico_id)  # RN-03
 
     # CU-01 paso 6: se crea el equipo nuevo (si aplica), la orden y se incrementa la cola.

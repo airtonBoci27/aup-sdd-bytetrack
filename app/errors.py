@@ -127,10 +127,100 @@ class NoAutenticado(ErrorDominio):
 
 
 class RolNoPermitido(ErrorDominio):
-    """RNF-02: las operaciones de recepción están restringidas al rol Recepcionista."""
+    """RNF-02: las operaciones están restringidas según el rol del usuario."""
 
     status_http = 403
     codigo = "ROL_NO_PERMITIDO"
 
+    def __init__(self, mensaje: str = "Su rol no tiene acceso a las operaciones de recepción"):
+        super().__init__(mensaje)
+
+
+# ---- Laboratorio, decisión y liquidación (CU-02, CU-03, CU-04, CU-08) ----------------
+
+
+class OrdenNoEncontrada(ErrorDominio):
+    status_http = 404
+    codigo = "ORDEN_NO_ENCONTRADA"
+
+    def __init__(self, codigo_orden: str):
+        super().__init__(f"No existe la orden de servicio {codigo_orden}")
+
+
+class OrdenNoAsignada(ErrorDominio):
+    """RN-03: el técnico solo accede a sus órdenes asignadas."""
+
+    status_http = 403
+    codigo = "ORDEN_NO_ASIGNADA"
+
+    def __init__(self, codigo_orden: str):
+        super().__init__(f"La orden {codigo_orden} no está asignada a su bandeja de laboratorio")
+
+
+class EstadoOrdenInvalido(ErrorDominio):
+    """Precondición de estado de CU-02, CU-03, CU-08 o CU-04."""
+
+    status_http = 409
+    codigo = "ESTADO_ORDEN_INVALIDO"
+
+    def __init__(self, codigo_orden: str, estado_actual: str, estado_requerido: str):
+        super().__init__(
+            f"La orden {codigo_orden} está en estado {estado_actual}; se requiere {estado_requerido}",
+            {"estado_actual": estado_actual, "estado_requerido": estado_requerido},
+        )
+
+
+class RepuestoNoEncontrado(ErrorDominio):
+    status_http = 404
+    codigo = "REPUESTO_NO_ENCONTRADO"
+
+    def __init__(self, repuesto_id: int):
+        super().__init__(f"El repuesto {repuesto_id} no existe en almacén")
+
+
+class StockInsuficienteError(ErrorDominio):
+    """E02 (CU-02 curso 9a, RN-04, RNF-01): conflicto de stock libre; no se reserva ninguno."""
+
+    status_http = 409
+    codigo = "E02"
+
+    def __init__(self, sku: str, nombre: str, solicitado: int, libre: int):
+        super().__init__(
+            f"Stock libre insuficiente para {sku} ({nombre}): solicitado {solicitado}, libre {libre}. No se reservó ningún repuesto.",
+            {"sku": sku, "nombre": nombre, "solicitado": solicitado, "stock_libre": libre},
+        )
+
+
+class PruebaNoConformeError(ErrorDominio):
+    """RN-07 (CU-08 curso 4a): la reparación solo se finaliza con prueba de funcionamiento conforme."""
+
+    status_http = 422
+    codigo = "PRUEBA_NO_CONFORME"
+
     def __init__(self):
-        super().__init__("Su rol no tiene acceso a las operaciones de recepción")
+        super().__init__(
+            "Debe marcar la prueba de funcionamiento conforme antes de finalizar la reparación"
+        )
+
+
+class MontoIncompletoError(ErrorDominio):
+    """RN-08 (CU-04 curso 3a): el cobro es por el total en un solo pago."""
+
+    status_http = 422
+    codigo = "MONTO_INCOMPLETO"
+
+    def __init__(self, esperado: str, recibido: str):
+        super().__init__(
+            f"El monto recibido (S/ {recibido}) debe coincidir exactamente con el total a cobrar (S/ {esperado})",
+            {"monto_esperado": esperado, "monto_recibido": recibido},
+        )
+
+
+class ConformidadRequeridaError(ErrorDominio):
+    """RN-08 (CU-04 curso 3a): exige conformidad de entrega del equipo y accesorios."""
+
+    status_http = 422
+    codigo = "CONFORMIDAD_REQUERIDA"
+
+    def __init__(self):
+        super().__init__("Debe marcar la conformidad de entrega del equipo y sus accesorios")

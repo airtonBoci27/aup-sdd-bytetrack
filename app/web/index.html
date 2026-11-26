@@ -3,171 +3,608 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ByteTrack · Recepción</title>
+  <title>ByteTrack · Gestión de Taller</title>
   <link rel="stylesheet" href="/css/estilos.css">
   <script type="module" src="/js/app.js"></script>
 </head>
 <body>
-  <!-- Encabezado de GUI-01 y GUI-02. Visible con sesión (recepción o rechazo por rol). -->
+  <!-- Encabezado principal. Visible con sesión activa. -->
   <header class="encabezado" hidden>
-    <span id="encabezado-titulo" data-trace="GUI-01" class="encabezado__titulo">ByteTrack v2.0 · Recepción <small>GUI-01 · CU-01 / CU-05</small></span>
+    <span id="encabezado-titulo" data-trace="GUI-01" class="encabezado__titulo">ByteTrack <small>ByteFix Lab</small></span>
     <span class="encabezado__sesion">
       <span id="sesion-etiqueta" data-trace="GUI-01 RNF-02" hidden>Recepcionista · sesión activa</span>
+      <button id="btn-tema" data-trace="GUI-01" type="button" class="boton boton--secundario" aria-pressed="false">Tema oscuro</button>
       <button id="cerrar-sesion" data-trace="RNF-02" type="button" class="boton boton--secundario">Cerrar sesión</button>
     </span>
   </header>
 
-  <main>
-    <!-- Inicio de sesión (RNF-02; precondición de CU-01) -->
-    <section id="vista-login" data-trace="RNF-02" class="tarjeta tarjeta--estrecha">
-      <h1>ByteTrack · Iniciar sesión</h1>
-      <form novalidate>
-        <label for="login-usuario">Usuario</label>
-        <input id="login-usuario" data-trace="RNF-02" type="text" autocomplete="username" required>
-        <label for="login-clave">Contraseña</label>
-        <input id="login-clave" data-trace="RNF-02" type="password" autocomplete="current-password" required>
-        <p id="login-error" data-trace="RNF-02" class="mensaje mensaje--error" role="alert" hidden></p>
-        <button id="login-entrar" data-trace="RNF-02" type="submit" class="boton boton--primario">Iniciar sesión</button>
-      </form>
-    </section>
-
-    <!-- Rechazo por rol (RNF-02) -->
-    <section id="vista-rechazo-rol" data-trace="RNF-02" class="tarjeta tarjeta--estrecha" hidden>
-      <p id="rechazo-mensaje" data-trace="RNF-02" class="mensaje mensaje--error" role="alert">Su rol no tiene acceso a las operaciones de recepción</p>
-    </section>
-
-    <!-- Recepción (GUI-01) con el modal de registro de cliente (GUI-02) -->
-    <section id="vista-recepcion" data-trace="GUI-01" hidden>
-      <!-- Indicador de flujo de estados: solo informativo -->
-      <div id="flujo-estados" data-trace="GUI-01" class="flujo">
-        <span>Estado al terminar:</span>
-        <span class="flujo__estado flujo__estado--actual">Recepcionado</span>
-        <span class="flujo__estado">Presupuestado</span>
-        <span class="flujo__estado">Aprobado</span>
-        <span class="flujo__estado">Listo</span>
-        <span class="flujo__estado">Entregado</span>
+  <div id="app-shell" data-trace="GUI-01" class="app-shell app-shell--login">
+    <!-- Barra lateral izquierda de módulos según rol -->
+    <nav id="nav-principal" data-trace="RNF-02" class="sidebar" aria-label="Módulos del sistema" hidden>
+      <p class="sidebar__titulo">Módulos</p>
+      <div class="sidebar__lista">
+        <button id="tab-panel" data-trace="RF-02 RNF-02" type="button" class="nav-tab nav-tab--activa"><span>Panel y Órdenes</span></button>
+        <button id="tab-recepcion" data-trace="GUI-01 RF-01 RF-02" type="button" class="nav-tab"><span>Recepción de Equipos</span></button>
+        <button id="tab-clientes" data-trace="GUI-01 RF-01" type="button" class="nav-tab"><span>Clientes y Equipos</span></button>
+        <button id="tab-diagnostico" data-trace="GUI-03 RF-03" type="button" class="nav-tab" hidden><span>Diagnóstico y Stock</span><span id="badge-diagnostico" data-trace="RF-03" class="nav-badge" hidden>0</span></button>
+        <button id="tab-decision" data-trace="GUI-04 RF-04" type="button" class="nav-tab"><span>Decisión de Presupuesto</span><span id="badge-decision" data-trace="RF-04" class="nav-badge" hidden>0</span></button>
+        <button id="tab-finalizar" data-trace="GUI-05 RF-06" type="button" class="nav-tab" hidden><span>Finalizar Reparación</span><span id="badge-finalizar" data-trace="RF-06" class="nav-badge" hidden>0</span></button>
+        <button id="tab-cobro" data-trace="GUI-06 RF-05" type="button" class="nav-tab"><span>Cobro y Entrega</span><span id="badge-cobro" data-trace="RF-05" class="nav-badge" hidden>0</span></button>
+        <button id="tab-almacen" data-trace="GUI-03 RF-03" type="button" class="nav-tab"><span>Almacén y Stock</span><span id="badge-almacen" data-trace="RF-03" class="nav-badge nav-badge--alerta" hidden>0</span></button>
       </div>
+    </nav>
 
-      <!-- 1. Cliente (CU-05; RF-01) -->
-      <section class="tarjeta">
-        <h2>1. Cliente (CU-05)</h2>
-        <div class="fila fila--cliente">
-          <div>
-            <label for="dni">DNI (8 dígitos)</label>
-            <input id="dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
+    <main>
+      <!-- Inicio de sesión -->
+      <section id="vista-login" data-trace="RNF-02" class="login-shell">
+        <div class="login-hero" aria-hidden="true">
+          <div class="login-hero__marca">
+            <span class="login-hero__logo">BT</span>
+            <div>
+              <strong>ByteTrack</strong>
+              <span>ByteFix Lab · Servicio Técnico</span>
+            </div>
           </div>
-          <button id="buscar-cliente" data-trace="RF-01" type="button" class="boton boton--primario">Buscar cliente</button>
-          <button id="registrar-cliente-abrir" data-trace="RF-01" type="button" class="boton" disabled>Registrar nuevo cliente</button>
-        </div>
-        <p id="dni-error" data-trace="RN-01" class="mensaje mensaje--error" role="alert" hidden>El DNI debe tener 8 dígitos</p>
-        <p id="cliente-resumen" data-trace="RF-01" class="cliente-resumen" aria-live="polite"></p>
-      </section>
-
-      <!-- 2. Equipo (RF-01 / RF-02) -->
-      <section class="tarjeta">
-        <h2>2. Equipo (RF-01 / RF-02)</h2>
-        <div class="fila">
-          <div>
-            <label for="equipo-selector">Equipos del cliente</label>
-            <select id="equipo-selector" data-trace="RF-01">
-              <option value="">Ingresar equipo nuevo</option>
-            </select>
-          </div>
-          <div>
-            <label for="equipo-tipo">Tipo</label>
-            <input id="equipo-tipo" data-trace="RF-01" type="text" autocomplete="off">
-          </div>
-          <div>
-            <label for="equipo-marca">Marca</label>
-            <input id="equipo-marca" data-trace="RF-01" type="text" autocomplete="off">
-          </div>
-          <div>
-            <label for="equipo-modelo">Modelo</label>
-            <input id="equipo-modelo" data-trace="RF-01" type="text" autocomplete="off">
-          </div>
-          <div>
-            <label for="equipo-serie">N.° de serie</label>
-            <input id="equipo-serie" data-trace="RF-01 RN-01" type="text" autocomplete="off">
+          <p class="login-hero__titular">Control total de cada equipo desde la recepción hasta la entrega.</p>
+          <div class="login-hero__puntos">
+            <div class="login-hero__punto">
+              <strong>Trazabilidad en tiempo real</strong>
+              <span>Seguimiento por estado de cada orden de servicio.</span>
+            </div>
+            <div class="login-hero__punto">
+              <strong>Control de repuestos</strong>
+              <span>Stock libre protegido ante cotizaciones simultáneas.</span>
+            </div>
+            <div class="login-hero__punto">
+              <strong>Acceso por perfil</strong>
+              <span>Espacios dedicados para Recepción y Laboratorio.</span>
+            </div>
           </div>
         </div>
-        <div class="fila--accesorios">
-          <label><input id="acc-cargador" data-trace="RF-02" type="checkbox"> Cargador original</label>
-          <label><input id="acc-funda" data-trace="RF-02" type="checkbox"> Funda / maletín</label>
-        </div>
-        <label for="estado-fisico">Estado físico al ingreso (obligatorio)</label>
-        <input id="estado-fisico" data-trace="RF-02" type="text" autocomplete="off">
-        <!-- Alerta E01 (CU-01 curso 5a; RN-02) -->
-        <p id="alerta-e01" data-trace="RF-02 RN-02" class="mensaje mensaje--error" role="alert" hidden></p>
-      </section>
 
-      <!-- 3. Orden de servicio (CU-01; RF-02) -->
-      <section class="tarjeta">
-        <h2>3. Orden de servicio</h2>
-        <label for="falla">Falla reportada por el cliente (obligatorio)</label>
-        <textarea id="falla" data-trace="RF-02"></textarea>
-        <div class="fila">
-          <div>
-            <label for="tecnico">Técnico disponible (solo disponibles)</label>
-            <select id="tecnico" data-trace="RF-02 RN-03"></select>
-          </div>
-          <div>
-            <label for="costo-revision">Costo de revisión</label>
-            <input id="costo-revision" data-trace="RF-02" type="text" readonly>
-          </div>
-          <p id="estado-inicial" data-trace="GUI-01" class="estado-inicial">Estado inicial: RECEPCIONADO</p>
+        <div class="login-panel">
+          <h1>Iniciar sesión</h1>
+          <p class="login-panel__subtitulo">Ingrese sus credenciales para acceder a su estación de trabajo.</p>
+          <form novalidate>
+            <label for="login-usuario">Usuario</label>
+            <input id="login-usuario" data-trace="RNF-02" type="text" autocomplete="username" placeholder="Ej. recepcion o tecnico" required>
+
+            <label for="login-clave">Contraseña</label>
+            <div class="campo-clave">
+              <input id="login-clave" data-trace="RNF-02" type="password" autocomplete="current-password" placeholder="Ingrese su contraseña" required>
+              <button id="login-ver-clave" data-trace="RNF-02" type="button" class="campo-clave__toggle" aria-pressed="false" aria-label="Mostrar u ocultar contraseña">Mostrar</button>
+            </div>
+            <p id="login-mayus" data-trace="RNF-02" class="mensaje mensaje--aviso" role="status" hidden>Bloq Mayús está activado</p>
+            <p id="login-error" data-trace="RNF-02" class="mensaje mensaje--error" role="alert" hidden></p>
+
+            <button id="login-entrar" data-trace="RNF-02" type="submit" class="boton boton--primario">Iniciar sesión</button>
+          </form>
+          <p class="login-panel__pie">ByteFix Lab · Acceso seguro con sesión protegida</p>
         </div>
       </section>
 
-      <!-- Resultados y pie de GUI-01 -->
-      <p id="alerta-error" data-trace="RF-02 RNF-04" class="mensaje mensaje--error" role="alert" hidden></p>
-      <p id="confirmacion-orden" data-trace="RF-02" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
-      <div class="pie">
-        <span id="id-operacion" data-trace="RNF-04" class="id-operacion"></span>
-        <div class="pie__acciones">
-          <button id="cancelar-orden" data-trace="GUI-01" type="button" class="boton">Cancelar</button>
-          <button id="generar-orden" data-trace="RF-02" type="button" class="boton boton--primario">Generar orden de servicio</button>
-        </div>
-      </div>
+      <!-- Rechazo por rol -->
+      <section id="vista-rechazo-rol" data-trace="RNF-02" class="tarjeta tarjeta--estrecha" hidden>
+        <p id="rechazo-mensaje" data-trace="RNF-02" class="mensaje mensaje--error" role="alert">Su perfil no tiene acceso a esta sección</p>
+      </section>
 
-      <!-- GUI-02: modal «Registrar nuevo cliente · CU-06» (RF-01) -->
-      <div id="modal-cliente" data-trace="GUI-02" class="modal" role="dialog" aria-modal="true" aria-label="Registrar nuevo cliente" hidden>
-        <div class="modal__caja">
-          <h2 class="modal__titulo">Registrar nuevo cliente · CU-06 / GUI-02</h2>
+      <!-- Panel Operativo y Seguimiento de Órdenes -->
+      <section id="vista-panel" data-trace="RF-02 RNF-02" hidden>
+        <div id="kpi-grid" data-trace="RF-02" class="kpi-grid">
+          <button id="kpi-btn-recepcionado" data-trace="RF-02" type="button" class="kpi-card kpi-card--azul" data-estado="RECEPCIONADO">
+            <span class="kpi-card__etiqueta">Recepcionado</span>
+            <strong id="kpi-recepcionado" data-trace="RF-02" class="kpi-card__valor">0</strong>
+          </button>
+          <button id="kpi-btn-presupuestado" data-trace="RF-03" type="button" class="kpi-card kpi-card--ambar" data-estado="PRESUPUESTADO">
+            <span class="kpi-card__etiqueta">Presupuestado</span>
+            <strong id="kpi-presupuestado" data-trace="RF-03" class="kpi-card__valor">0</strong>
+          </button>
+          <button id="kpi-btn-aprobado" data-trace="RF-04" type="button" class="kpi-card kpi-card--indigo" data-estado="APROBADO">
+            <span class="kpi-card__etiqueta">Aprobado</span>
+            <strong id="kpi-aprobado" data-trace="RF-04" class="kpi-card__valor">0</strong>
+          </button>
+          <button id="kpi-btn-listo" data-trace="RF-06" type="button" class="kpi-card kpi-card--verde" data-estado="LISTO">
+            <span class="kpi-card__etiqueta">Listo para entrega</span>
+            <strong id="kpi-listo" data-trace="RF-06" class="kpi-card__valor">0</strong>
+          </button>
+          <button id="kpi-btn-entregado" data-trace="RF-05" type="button" class="kpi-card kpi-card--gris" data-estado="ENTREGADO">
+            <span class="kpi-card__etiqueta">Entregado</span>
+            <strong id="kpi-entregado" data-trace="RF-05" class="kpi-card__valor">0</strong>
+          </button>
+          <button id="kpi-btn-todos" data-trace="RF-03" type="button" class="kpi-card kpi-card--alerta" data-estado="">
+            <span class="kpi-card__etiqueta">Stock bajo (≤2)</span>
+            <strong id="kpi-stock-bajo" data-trace="RF-03" class="kpi-card__valor">0</strong>
+          </button>
+        </div>
+
+        <section id="grafico-distribucion" data-trace="RF-02" class="tarjeta tarjeta--compacta">
+          <h2>Distribución actual del taller</h2>
+          <div id="grafico-barra" data-trace="RF-02" class="grafico-barra" aria-label="Distribución de órdenes por estado"></div>
+          <div id="grafico-leyenda" data-trace="RF-02" class="grafico-leyenda"></div>
+        </section>
+
+        <section id="panel-tecnicos" data-trace="RN-03" class="tarjeta tarjeta--compacta">
+          <h2>Carga de trabajo del laboratorio</h2>
+          <div id="tecnicos-grid" data-trace="RN-03" class="tecnicos-grid"></div>
+        </section>
+
+        <section class="tarjeta">
+          <h2>Seguimiento de Órdenes de Servicio</h2>
+          <div class="fila fila--filtros-csv">
+            <div>
+              <label for="filtro-ordenes-q">Buscar por código, DNI, cliente o serie</label>
+              <input id="filtro-ordenes-q" data-trace="RF-02" type="text" placeholder="Ej. OS-2026-0001, 45678912, SN-LEN...">
+            </div>
+            <div>
+              <label for="filtro-ordenes-estado">Estado</label>
+              <select id="filtro-ordenes-estado" data-trace="RF-02">
+                <option value="">Todos los estados</option>
+                <option value="RECEPCIONADO">RECEPCIONADO</option>
+                <option value="PRESUPUESTADO">PRESUPUESTADO</option>
+                <option value="APROBADO">APROBADO</option>
+                <option value="RECHAZADO">RECHAZADO</option>
+                <option value="LISTO">LISTO</option>
+                <option value="ENTREGADO">ENTREGADO</option>
+              </select>
+            </div>
+            <button id="btn-filtrar-ordenes" data-trace="RF-02" type="button" class="boton boton--primario">Filtrar</button>
+            <button id="btn-exportar-csv" data-trace="RF-02" type="button" class="boton">Exportar CSV</button>
+          </div>
+
+          <div class="tabla-wrap">
+            <table id="tabla-ordenes" data-trace="RF-02" class="tabla">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Cliente</th>
+                  <th>Equipo / Serie</th>
+                  <th>Técnico</th>
+                  <th>Estado</th>
+                  <th>Total</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-ordenes-body" data-trace="RF-02"></tbody>
+            </table>
+          </div>
+          <div class="paginacion">
+            <span id="paginacion-ordenes-info" data-trace="RF-02" class="nota"></span>
+            <div class="paginacion__controles">
+              <button id="ordenes-prev" data-trace="RF-02" type="button" class="boton" disabled>Anterior</button>
+              <button id="ordenes-next" data-trace="RF-02" type="button" class="boton" disabled>Siguiente</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Recepción de Equipos -->
+      <section id="vista-recepcion" data-trace="GUI-01" hidden>
+        <div id="flujo-estados" data-trace="GUI-01" class="flujo">
+          <span>Flujo de orden:</span>
+          <span class="flujo__estado flujo__estado--actual">Recepcionado</span>
+          <span class="flujo__estado">Presupuestado</span>
+          <span class="flujo__estado">Aprobado</span>
+          <span class="flujo__estado">Listo</span>
+          <span class="flujo__estado">Entregado</span>
+        </div>
+
+        <section class="tarjeta">
+          <h2>1. Datos del Cliente</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="dni">DNI (8 dígitos)</label>
+              <input id="dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
+            </div>
+            <button id="buscar-cliente" data-trace="RF-01" type="button" class="boton boton--primario">Buscar cliente</button>
+            <button id="registrar-cliente-abrir" data-trace="RF-01" type="button" class="boton" disabled>Registrar nuevo cliente</button>
+          </div>
+          <p id="dni-error" data-trace="RN-01" class="mensaje mensaje--error" role="alert" hidden>El DNI debe tener 8 dígitos</p>
+          <p id="cliente-resumen" data-trace="RF-01" class="cliente-resumen" aria-live="polite"></p>
+        </section>
+
+        <section class="tarjeta">
+          <h2>2. Datos del Equipo</h2>
+          <div class="fila">
+            <div>
+              <label for="equipo-selector">Equipos del cliente</label>
+              <select id="equipo-selector" data-trace="RF-01">
+                <option value="">Ingresar equipo nuevo</option>
+              </select>
+            </div>
+            <div>
+              <label for="equipo-tipo">Tipo</label>
+              <input id="equipo-tipo" data-trace="RF-01" type="text" autocomplete="off">
+            </div>
+            <div>
+              <label for="equipo-marca">Marca</label>
+              <input id="equipo-marca" data-trace="RF-01" type="text" autocomplete="off">
+            </div>
+            <div>
+              <label for="equipo-modelo">Modelo</label>
+              <input id="equipo-modelo" data-trace="RF-01" type="text" autocomplete="off">
+            </div>
+            <div>
+              <label for="equipo-serie">N.° de serie</label>
+              <input id="equipo-serie" data-trace="RF-01 RN-01" type="text" autocomplete="off">
+            </div>
+          </div>
+          <div class="fila--accesorios">
+            <label><input id="acc-cargador" data-trace="RF-02" type="checkbox"> Cargador original</label>
+            <label><input id="acc-funda" data-trace="RF-02" type="checkbox"> Funda / maletín</label>
+          </div>
+          <label for="estado-fisico">Estado físico al ingreso (obligatorio)</label>
+          <input id="estado-fisico" data-trace="RF-02" type="text" autocomplete="off">
+          <p id="alerta-e01" data-trace="RF-02 RN-02" class="mensaje mensaje--error" role="alert" hidden></p>
+        </section>
+
+        <section class="tarjeta">
+          <h2>3. Orden de Servicio</h2>
+          <label for="falla">Falla reportada por el cliente (obligatorio)</label>
+          <textarea id="falla" data-trace="RF-02"></textarea>
+          <div class="fila">
+            <div>
+              <label for="tecnico">Técnico asignado (disponibles)</label>
+              <select id="tecnico" data-trace="RF-02 RN-03"></select>
+            </div>
+            <div>
+              <label for="costo-revision">Costo de revisión</label>
+              <input id="costo-revision" data-trace="RF-02" type="text" readonly>
+            </div>
+            <p id="estado-inicial" data-trace="GUI-01" class="estado-inicial">Estado inicial: RECEPCIONADO</p>
+          </div>
+        </section>
+
+        <p id="alerta-error" data-trace="RF-02 RNF-04" class="mensaje mensaje--error" role="alert" hidden></p>
+        <div class="confirmacion-fila">
+          <p id="confirmacion-orden" data-trace="RF-02" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+          <button id="btn-imprimir-orden" data-trace="GUI-01 RF-02" type="button" class="boton" hidden>Imprimir ticket</button>
+        </div>
+        <div class="pie">
+          <span id="id-operacion" data-trace="RNF-04" class="id-operacion"></span>
+          <div class="pie__acciones">
+            <button id="cancelar-orden" data-trace="GUI-01" type="button" class="boton">Cancelar</button>
+            <button id="generar-orden" data-trace="RF-02" type="button" class="boton boton--primario">Generar orden de servicio</button>
+          </div>
+        </div>
+
+        <!-- Modal de registro de nuevo cliente -->
+        <div id="modal-cliente" data-trace="GUI-02" class="modal" role="dialog" aria-modal="true" aria-label="Registrar nuevo cliente" hidden>
+          <div class="modal__caja">
+            <h2 class="modal__titulo">Registrar nuevo cliente</h2>
+            <div class="modal__cuerpo">
+              <label for="cli-dni">DNI (*)</label>
+              <input id="cli-dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
+              <small class="nota">8 dígitos. Si el DNI ya existe, se cargará el cliente registrado sin duplicarlo.</small>
+              <div class="fila">
+                <div>
+                  <label for="cli-nombres">Nombres (*)</label>
+                  <input id="cli-nombres" data-trace="RF-01" type="text" autocomplete="off">
+                </div>
+                <div>
+                  <label for="cli-apellidos">Apellidos (*)</label>
+                  <input id="cli-apellidos" data-trace="RF-01" type="text" autocomplete="off">
+                </div>
+                <div>
+                  <label for="cli-telefono">Teléfono (*)</label>
+                  <input id="cli-telefono" data-trace="RF-01" type="text" autocomplete="off">
+                </div>
+              </div>
+              <label for="cli-correo">Correo electrónico (opcional)</label>
+              <input id="cli-correo" data-trace="RF-01" type="text" autocomplete="off">
+              <p id="cli-aviso" data-trace="RF-01 RN-01" class="mensaje mensaje--aviso" role="status" hidden></p>
+              <p id="cli-error" data-trace="RF-01 RN-01" class="mensaje mensaje--error" role="alert" hidden></p>
+              <div class="modal__pie">
+                <small id="cli-nota" data-trace="GUI-02" class="nota">Al guardar regresa a recepción con el cliente cargado.</small>
+                <div class="pie__acciones">
+                  <button id="cli-cancelar" data-trace="GUI-02" type="button" class="boton">Cancelar</button>
+                  <button id="cli-guardar" data-trace="RF-01" type="button" class="boton boton--primario">Guardar cliente</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Diagnóstico y Stock de Repuestos -->
+      <section id="vista-diagnostico" data-trace="GUI-03 RF-03" hidden>
+        <section class="tarjeta">
+          <h2>Diagnóstico y Presupuesto</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="diag-orden-codigo">Código de orden asignada</label>
+              <input id="diag-orden-codigo" data-trace="GUI-03 RN-03" type="text" placeholder="Ej. OS-2026-0001">
+            </div>
+            <button id="diag-cargar-orden" data-trace="GUI-03 RF-03" type="button" class="boton boton--primario">Cargar orden</button>
+          </div>
+          <p id="diag-cabecera" data-trace="GUI-03 RF-03" class="cliente-resumen"></p>
+        </section>
+
+        <section class="tarjeta">
+          <h2>1. Evaluación técnica</h2>
+          <label for="diag-informe">Informe de laboratorio (obligatorio)</label>
+          <textarea id="diag-informe" data-trace="GUI-03 RF-03" placeholder="Detalle del diagnóstico realizado..."></textarea>
+          <div class="fila">
+            <div>
+              <label for="diag-mano-obra">Costo de mano de obra (S/)</label>
+              <input id="diag-mano-obra" data-trace="GUI-03 RF-03" type="text" inputmode="decimal" value="80.00">
+            </div>
+            <p id="diag-totales" data-trace="GUI-03 RF-03" class="estado-inicial">Total presupuesto: S/ 80.00</p>
+          </div>
+        </section>
+
+        <section class="tarjeta">
+          <h2>2. Buscador de repuestos en almacén</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="rep-buscar-q">SKU o nombre del componente</label>
+              <input id="rep-buscar-q" data-trace="GUI-03 RF-03" type="text" placeholder="Ej. RAM, SSD, PANTALLA...">
+            </div>
+            <button id="rep-buscar-btn" data-trace="GUI-03 RF-03" type="button" class="boton boton--primario">Buscar stock</button>
+          </div>
+          <div class="tabla-wrap">
+            <table id="tabla-repuestos" data-trace="GUI-03 RF-03" class="tabla">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Repuesto</th>
+                  <th>Stock libre</th>
+                  <th>Precio unit.</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-repuestos-body" data-trace="GUI-03 RF-03"></tbody>
+            </table>
+          </div>
+          <div class="paginacion">
+            <span id="paginacion-repuestos-info" data-trace="GUI-03 RF-03" class="nota"></span>
+            <div class="paginacion__controles">
+              <button id="rep-prev" data-trace="GUI-03 RF-03" type="button" class="boton" disabled>Anterior</button>
+              <button id="rep-next" data-trace="GUI-03 RF-03" type="button" class="boton" disabled>Siguiente</button>
+            </div>
+          </div>
+
+          <h3 class="subtitulo">Repuestos añadidos al presupuesto</h3>
+          <div class="tabla-wrap">
+            <table id="tabla-cotizacion" data-trace="GUI-03 RF-03" class="tabla">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Repuesto</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+                  <th>Quitar</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-cotizacion-body" data-trace="GUI-03 RF-03"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <p id="alerta-e02" data-trace="GUI-03 RF-03 RN-04" class="mensaje mensaje--error" role="alert" hidden></p>
+        <p id="diag-confirmacion" data-trace="GUI-03 RF-03" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+        <div class="pie">
+          <span id="diag-id-op" data-trace="RNF-04" class="id-operacion"></span>
+          <div class="pie__acciones">
+            <button id="diag-emitir" data-trace="GUI-03 RF-03 RN-04" type="button" class="boton boton--primario">Emitir diagnóstico y presupuesto</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Decisión de Presupuesto -->
+      <section id="vista-decision" data-trace="GUI-04 RF-04" hidden>
+        <section class="tarjeta">
+          <h2>Decisión de Presupuesto</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="dec-orden-codigo">Código de orden presupuestada</label>
+              <input id="dec-orden-codigo" data-trace="GUI-04 RF-04" type="text" placeholder="Ej. OS-2026-0002">
+            </div>
+            <button id="dec-cargar-orden" data-trace="GUI-04 RF-04" type="button" class="boton boton--primario">Buscar orden</button>
+          </div>
+          <p id="dec-resumen" data-trace="GUI-04 RF-04" class="cliente-resumen"></p>
+
+          <div class="fila">
+            <div>
+              <label for="dec-valor">Decisión del cliente</label>
+              <select id="dec-valor" data-trace="GUI-04 RF-04 RN-06">
+                <option value="APROBADO">Aprobado (mantiene reservas de repuestos)</option>
+                <option value="RECHAZADO">Rechazado (libera reservas al stock libre)</option>
+              </select>
+            </div>
+            <div>
+              <label for="dec-canal">Canal de comunicación</label>
+              <select id="dec-canal" data-trace="GUI-04 RF-04 RN-05">
+                <option value="WHATSAPP">WhatsApp</option>
+                <option value="LLAMADA">Llamada telefónica</option>
+                <option value="PRESENCIAL">Presencial</option>
+              </select>
+            </div>
+          </div>
+          <label for="dec-evidencia">Evidencia de confirmación (obligatorio)</label>
+          <textarea id="dec-evidencia" data-trace="GUI-04 RF-04 RN-05" placeholder="Ej. Cliente confirmó por WhatsApp a las 14:30 el presupuesto total."></textarea>
+        </section>
+
+        <p id="dec-error" data-trace="GUI-04 RF-04" class="mensaje mensaje--error" role="alert" hidden></p>
+        <p id="dec-confirmacion" data-trace="GUI-04 RF-04" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+        <div class="pie">
+          <span id="dec-id-op" data-trace="RNF-04" class="id-operacion"></span>
+          <div class="pie__acciones">
+            <button id="dec-registrar" data-trace="GUI-04 RF-04 RN-05 RN-06" type="button" class="boton boton--primario">Registrar decisión</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Finalizar Reparación -->
+      <section id="vista-finalizar" data-trace="GUI-05 RF-06" hidden>
+        <section class="tarjeta">
+          <h2>Finalizar Reparación</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="fin-orden-codigo">Código de orden aprobada</label>
+              <input id="fin-orden-codigo" data-trace="GUI-05 RF-06" type="text" placeholder="Ej. OS-2026-0003">
+            </div>
+            <button id="fin-cargar-orden" data-trace="GUI-05 RF-06" type="button" class="boton boton--primario">Cargar orden</button>
+          </div>
+          <p id="fin-resumen" data-trace="GUI-05 RF-06" class="cliente-resumen"></p>
+
+          <label for="fin-trabajo">Trabajo realizado en laboratorio (obligatorio)</label>
+          <textarea id="fin-trabajo" data-trace="GUI-05 RF-06" placeholder="Detalle del cambio de componentes y pruebas..."></textarea>
+
+          <div class="fila--accesorios">
+            <label><input id="fin-prueba-conforme" data-trace="GUI-05 RF-06 RN-07" type="checkbox"> Prueba de funcionamiento conforme (obligatorio)</label>
+          </div>
+          <label for="fin-resultado-prueba">Resultado de la prueba de funcionamiento (obligatorio)</label>
+          <input id="fin-resultado-prueba" data-trace="GUI-05 RF-06 RN-07" type="text" placeholder="Ej. Encendido estable, temperatura normal, puertos operativos.">
+        </section>
+
+        <p id="fin-error" data-trace="GUI-05 RF-06 RN-07" class="mensaje mensaje--error" role="alert" hidden></p>
+        <p id="fin-confirmacion" data-trace="GUI-05 RF-06" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+        <div class="pie">
+          <span id="fin-id-op" data-trace="RNF-04" class="id-operacion"></span>
+          <div class="pie__acciones">
+            <button id="fin-confirmar" data-trace="GUI-05 RF-06 RN-07" type="button" class="boton boton--primario" disabled>Finalizar reparación</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cobro y Entrega -->
+      <section id="vista-cobro" data-trace="GUI-06 RF-05" hidden>
+        <section class="tarjeta">
+          <h2>Cobro y Entrega de Equipo</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="cob-orden-codigo">Código de orden (lista o rechazada para devolución)</label>
+              <input id="cob-orden-codigo" data-trace="GUI-06 RF-05" type="text" placeholder="Ej. OS-2026-0004">
+            </div>
+            <button id="cob-cargar-orden" data-trace="GUI-06 RF-05" type="button" class="boton boton--primario">Buscar orden</button>
+          </div>
+          <p id="cob-resumen" data-trace="GUI-06 RF-05" class="cliente-resumen"></p>
+
+          <div class="fila">
+            <div>
+              <label for="cob-metodo">Método de pago</label>
+              <select id="cob-metodo" data-trace="GUI-06 RF-05 RN-08">
+                <option value="EFECTIVO">Efectivo</option>
+                <option value="TARJETA">Tarjeta</option>
+                <option value="TRANSFERENCIA">Transferencia</option>
+              </select>
+            </div>
+            <div>
+              <label for="cob-monto">Monto recibido (pago único total)</label>
+              <input id="cob-monto" data-trace="GUI-06 RF-05 RN-08" type="text" inputmode="decimal" placeholder="0.00">
+            </div>
+          </div>
+          <div class="fila--accesorios">
+            <label><input id="cob-conformidad" data-trace="GUI-06 RF-05 RN-08" type="checkbox"> Cliente conforme con la entrega del equipo y sus accesorios</label>
+          </div>
+        </section>
+
+        <p id="cob-error" data-trace="GUI-06 RF-05 RN-08" class="mensaje mensaje--error" role="alert" hidden></p>
+        <div class="confirmacion-fila">
+          <p id="cob-confirmacion" data-trace="GUI-06 RF-05 RN-09" class="mensaje mensaje--ok" aria-live="polite" hidden></p>
+          <button id="btn-imprimir-comprobante" data-trace="GUI-06 RF-05" type="button" class="boton" hidden>Imprimir comprobante</button>
+        </div>
+        <div class="pie">
+          <span id="cob-id-op" data-trace="RNF-04" class="id-operacion"></span>
+          <div class="pie__acciones">
+            <button id="cob-liquidar" data-trace="GUI-06 RF-05 RN-08 RN-09" type="button" class="boton boton--primario">Cobrar y entregar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clientes y Equipos -->
+      <section id="vista-clientes" data-trace="GUI-01 RF-01" hidden>
+        <section class="tarjeta">
+          <h2>Directorio de Clientes y Equipos</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="filtro-clientes-q">Buscar por DNI, nombre o teléfono</label>
+              <input id="filtro-clientes-q" data-trace="RF-01" type="text" placeholder="Ej. 45678912, María, 987...">
+            </div>
+            <button id="btn-filtrar-clientes" data-trace="RF-01" type="button" class="boton boton--primario">Buscar</button>
+          </div>
+          <div class="tabla-wrap">
+            <table id="tabla-clientes" data-trace="RF-01" class="tabla">
+              <thead>
+                <tr>
+                  <th>DNI</th>
+                  <th>Cliente</th>
+                  <th>Teléfono / Correo</th>
+                  <th>Equipos registrados</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-clientes-body" data-trace="RF-01"></tbody>
+            </table>
+          </div>
+          <div class="paginacion">
+            <span id="paginacion-clientes-info" data-trace="RF-01" class="nota"></span>
+            <div class="paginacion__controles">
+              <button id="clientes-prev" data-trace="RF-01" type="button" class="boton" disabled>Anterior</button>
+              <button id="clientes-next" data-trace="RF-01" type="button" class="boton" disabled>Siguiente</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Almacén y Stock de Repuestos -->
+      <section id="vista-almacen" data-trace="GUI-03 RF-03" hidden>
+        <section class="tarjeta">
+          <h2>Almacén y Control de Stock</h2>
+          <div class="fila fila--cliente">
+            <div>
+              <label for="filtro-almacen-q">Buscar por SKU o nombre del repuesto</label>
+              <input id="filtro-almacen-q" data-trace="RF-03" type="text" placeholder="Ej. SSD, RAM, PANTALLA...">
+            </div>
+            <button id="btn-filtrar-almacen" data-trace="RF-03" type="button" class="boton boton--primario">Buscar</button>
+          </div>
+          <div class="tabla-wrap">
+            <table id="tabla-almacen" data-trace="RF-03" class="tabla">
+              <thead>
+                <tr>
+                  <th>SKU</th>
+                  <th>Repuesto</th>
+                  <th>Stock físico</th>
+                  <th>Reservado</th>
+                  <th>Stock libre</th>
+                  <th>Precio unit.</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-almacen-body" data-trace="RF-03"></tbody>
+            </table>
+          </div>
+          <div class="paginacion">
+            <span id="paginacion-almacen-info" data-trace="RF-03" class="nota"></span>
+            <div class="paginacion__controles">
+              <button id="almacen-prev" data-trace="RF-03" type="button" class="boton" disabled>Anterior</button>
+              <button id="almacen-next" data-trace="RF-03" type="button" class="boton" disabled>Siguiente</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Modal de Detalle y Línea de Tiempo de Orden -->
+      <div id="modal-detalle-orden" data-trace="RF-02" class="modal" role="dialog" aria-modal="true" aria-label="Detalle de orden de servicio" hidden>
+        <div class="modal__caja modal__caja--ancha">
+          <h2 id="det-titulo" data-trace="RF-02" class="modal__titulo">Detalle de orden</h2>
           <div class="modal__cuerpo">
-            <label for="cli-dni">DNI (*)</label>
-            <input id="cli-dni" data-trace="RF-01 RN-01" type="text" inputmode="numeric" maxlength="8" autocomplete="off">
-            <small class="nota">8 dígitos. Si ya existe se avisa «El DNI ya está registrado» y se abre el cliente existente, sin duplicar.</small>
-            <div class="fila">
-              <div>
-                <label for="cli-nombres">Nombres (*)</label>
-                <input id="cli-nombres" data-trace="RF-01" type="text" autocomplete="off">
-              </div>
-              <div>
-                <label for="cli-apellidos">Apellidos (*)</label>
-                <input id="cli-apellidos" data-trace="RF-01" type="text" autocomplete="off">
-              </div>
-              <div>
-                <label for="cli-telefono">Teléfono (*)</label>
-                <input id="cli-telefono" data-trace="RF-01" type="text" inputmode="tel" autocomplete="off">
-              </div>
-              <div>
-                <label for="cli-correo">Correo (opcional)</label>
-                <input id="cli-correo" data-trace="RF-01" type="text" inputmode="email" autocomplete="off">
-              </div>
-            </div>
-            <p id="cli-aviso" data-trace="RF-01 RN-01" class="mensaje mensaje--aviso" role="status" hidden>El DNI ya está registrado</p>
-            <p id="cli-error" data-trace="RF-01" class="mensaje mensaje--error" role="alert" hidden></p>
+            <div id="det-timeline" data-trace="RF-02" class="timeline"></div>
+            <div id="det-cuerpo" data-trace="RF-02" class="detalle-grid"></div>
             <div class="modal__pie">
-              <span id="cli-nota" data-trace="GUI-02" class="nota">(*) campo obligatorio · al guardar vuelve a GUI-01 con el cliente cargado</span>
-              <span class="pie__acciones">
-                <button id="cli-cancelar" data-trace="GUI-02" type="button" class="boton">Cancelar</button>
-                <button id="cli-guardar" data-trace="RF-01" type="button" class="boton boton--primario">Guardar cliente</button>
-              </span>
+              <small class="nota">Historial completo de la orden en ByteTrack.</small>
+              <div class="pie__acciones">
+                <button id="det-imprimir" data-trace="GUI-01 RF-02" type="button" class="boton">Imprimir ficha</button>
+                <button id="det-cerrar" data-trace="RF-02" type="button" class="boton boton--primario">Cerrar</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </section>
-  </main>
+    </main>
+  </div>
+
+  <!-- Contenedor de notificaciones Toast -->
+  <div id="toast-contenedor" data-trace="GUI-01" class="toast-contenedor" aria-live="polite"></div>
 </body>
 </html>

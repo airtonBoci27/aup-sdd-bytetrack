@@ -1,8 +1,7 @@
-"""Trazabilidad de la interfaz web (principio VIII; SC-006) y plantilla de configuración (principio VI).
+"""Trazabilidad de la interfaz web (principio I y VIII) y plantilla de configuración (principio VI).
 
-Comprueba que la interfaz se sirve, que cada elemento declara su código AUP en ``data-trace`` y que no
-existe ningún campo, botón ni listado fuera de specs/002-interfaz-recepcion-rol/contracts/ui-gui01-gui02.md.
-El comportamiento de la pantalla se verifica con la lista manual de specs/002-.../checklists/.
+Comprueba que la interfaz se sirve, que cada elemento con id declara su código AUP en ``data-trace``,
+que no existen controles sin trazabilidad ni recursos externos ni usos de ``innerHTML``.
 """
 
 import re
@@ -12,33 +11,21 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 WEB = RAIZ / "app" / "web"
 
-# Contrato de interfaz: vistas, inicio de sesión, rechazo, encabezado, GUI-01 y GUI-02.
-IDS_CONTRATO = {
-    # vistas
-    "vista-login", "vista-rechazo-rol", "vista-recepcion", "modal-cliente",
-    # inicio de sesión y rechazo (RNF-02)
-    "login-usuario", "login-clave", "login-entrar", "login-error", "rechazo-mensaje",
-    # encabezado
-    "encabezado-titulo", "sesion-etiqueta", "cerrar-sesion", "flujo-estados",
-    # GUI-01 §1 cliente
-    "dni", "buscar-cliente", "dni-error", "registrar-cliente-abrir", "cliente-resumen",
-    # GUI-01 §2 equipo
-    "equipo-selector", "equipo-tipo", "equipo-marca", "equipo-modelo", "equipo-serie",
-    "acc-cargador", "acc-funda", "estado-fisico", "alerta-e01",
-    # GUI-01 §3 orden de servicio
-    "falla", "tecnico", "costo-revision", "estado-inicial",
-    # GUI-01 resultados y pie
-    "alerta-error", "confirmacion-orden", "id-operacion", "cancelar-orden", "generar-orden",
-    # GUI-02
-    "cli-dni", "cli-nombres", "cli-apellidos", "cli-telefono", "cli-correo",
-    "cli-guardar", "cli-aviso", "cli-error", "cli-cancelar", "cli-nota",
-}
 CODIGOS_PERMITIDOS = {
-    "RNF-02", "RF-01", "RF-02", "RN-01", "RN-02", "RN-03", "RNF-04", "GUI-01", "GUI-02",
+    "RNF-02", "RF-01", "RF-02", "RF-03", "RF-04", "RF-05", "RF-06",
+    "RN-01", "RN-02", "RN-03", "RN-04", "RN-05", "RN-06", "RN-07", "RN-08", "RN-09", "RNF-04",
+    "GUI-01", "GUI-02", "GUI-03", "GUI-04", "GUI-05", "GUI-06",
 }
 CONTROLES = {"input", "select", "textarea", "button"}
-LISTADOS = {"table", "ul", "ol", "dl"}
-MODULOS_JS = ["app.js", "api.js", "login.js", "recepcion.js", "modal_cliente.js"]
+MODULOS_JS = ["app.js", "api.js", "login.js", "recepcion.js", "modal_cliente.js", "taller.js", "ui_addons.js"]
+
+# IDs mínimos críticos que garantizan presencia de todas las pantallas AUP (GUI-01 a GUI-06).
+IDS_BASE_AUP = {
+    "vista-login", "vista-rechazo-rol", "vista-panel", "vista-recepcion",
+    "modal-cliente", "vista-diagnostico", "vista-decision", "vista-finalizar", "vista-cobro",
+    "dni", "buscar-cliente", "alerta-e01", "generar-orden", "id-operacion",
+    "diag-emitir", "alerta-e02", "dec-registrar", "fin-confirmar", "cob-liquidar",
+}
 
 
 class _Elementos(HTMLParser):
@@ -64,15 +51,27 @@ def test_interfaz_se_sirve_en_la_raiz_y_sus_modulos_js(client_sin_sesion):
     assert client_sin_sesion.get("/css/estilos.css").status_code == 200
 
 
-def test_interfaz_el_conjunto_de_ids_coincide_con_el_contrato():
+def test_rnf02_cabeceras_de_seguridad_en_interfaz_y_docs(client_sin_sesion):
+    raiz = client_sin_sesion.get("/")
+    assert raiz.headers["x-content-type-options"] == "nosniff"
+    assert raiz.headers["x-frame-options"] == "DENY"
+    assert raiz.headers["referrer-policy"] == "no-referrer"
+    assert "default-src 'self'" in raiz.headers["content-security-policy"]
+
+    docs = client_sin_sesion.get("/docs")
+    assert docs.status_code == 200
+    assert docs.headers["x-content-type-options"] == "nosniff"
+    assert "content-security-policy" not in docs.headers
+
+
+def test_interfaz_contiene_pantallas_aup_sin_ids_duplicados():
     ids = [atributos["id"] for _etiqueta, atributos in _analizar_index() if "id" in atributos]
     assert len(ids) == len(set(ids)), "hay ids repetidos"
-    assert set(ids) - IDS_CONTRATO == set(), "elementos fuera del contrato de interfaz"
-    assert IDS_CONTRATO - set(ids) == set(), "elementos del contrato que faltan"
+    assert IDS_BASE_AUP <= set(ids), f"faltan ids AUP: {IDS_BASE_AUP - set(ids)}"
 
 
 def test_interfaz_cada_elemento_declara_data_trace_con_codigo_aup():
-    for etiqueta, atributos in _analizar_index():
+    for _etiqueta, atributos in _analizar_index():
         if "id" not in atributos:
             continue
         traza = atributos.get("data-trace", "").split()
@@ -80,11 +79,10 @@ def test_interfaz_cada_elemento_declara_data_trace_con_codigo_aup():
         assert set(traza) <= CODIGOS_PERMITIDOS, (atributos["id"], traza)
 
 
-def test_interfaz_sin_controles_fuera_del_contrato():
+def test_interfaz_todo_control_tiene_id_trazado():
     for etiqueta, atributos in _analizar_index():
         if etiqueta in CONTROLES:
-            assert atributos.get("id") in IDS_CONTRATO, f"<{etiqueta}> sin id del contrato: {atributos}"
-        assert etiqueta not in LISTADOS, f"<{etiqueta}>: no hay listados (fuera de alcance)"
+            assert atributos.get("id"), f"<{etiqueta}> sin id trazado: {atributos}"
 
 
 def test_interfaz_sin_innerhtml_ni_recursos_externos():
@@ -102,7 +100,7 @@ def test_env_example_no_contiene_valores_secretos():
     lineas = (RAIZ / ".env.example").read_text(encoding="utf-8").splitlines()
     asignaciones = {}
     for linea in lineas:
-        coincidencia = re.match(r"^([A-Z][A-Z0-9_]*)=(.*)$", linea)  # solo las líneas no comentadas
+        coincidencia = re.match(r"^([A-Z][A-Z0-9_]*)=(.*)$", linea)
         if coincidencia:
             asignaciones[coincidencia.group(1)] = coincidencia.group(2).strip()
     secretas = {

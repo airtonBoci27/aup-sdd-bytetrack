@@ -8,7 +8,7 @@ import time
 from sqlalchemy.orm import Session
 
 from app import config, security
-from app.config import ROL_RECEPCIONISTA
+from app.config import ROL_RECEPCIONISTA, ROL_TECNICO
 from app.database import iniciar_escritura
 from app.errors import CredencialesInvalidas, NoAutenticado, RolNoPermitido
 from app.models.entities import Usuario
@@ -20,7 +20,9 @@ def iniciar_sesion(sesion: Session, nombre_usuario: str, clave: str) -> TokenOut
     """RNF-02: valida las credenciales y emite el token. Un Técnico válido también obtiene token;
     su rechazo ocurre en las operaciones de recepción."""
     usuario = UsuarioRepository(sesion).obtener_por_nombre(nombre_usuario)
-    if usuario is None or not security.verificar_clave(clave, usuario.clave_hash):
+    hash_a_verificar = usuario.clave_hash if usuario is not None else security.hash_ficticio()
+    clave_valida = security.verificar_clave(clave, hash_a_verificar)
+    if usuario is None or not clave_valida:
         raise CredencialesInvalidas()
     token, _jti, _exp = security.crear_token(
         usuario.nombre_usuario, config.minutos_sesion(), config.clave_jwt()
@@ -56,6 +58,13 @@ def exigir_recepcionista(usuario: Usuario) -> Usuario:
     """RNF-02: las operaciones de recepción están restringidas al rol Recepcionista."""
     if usuario.rol != ROL_RECEPCIONISTA:
         raise RolNoPermitido()
+    return usuario
+
+
+def exigir_tecnico(usuario: Usuario) -> Usuario:
+    """RNF-02: las operaciones de laboratorio están restringidas al rol Técnico."""
+    if usuario.rol != ROL_TECNICO:
+        raise RolNoPermitido("Su rol no tiene acceso a las operaciones de laboratorio")
     return usuario
 
 

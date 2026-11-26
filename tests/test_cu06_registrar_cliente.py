@@ -38,6 +38,16 @@ def test_cu01_2a_correo_opcional(client):
     assert respuesta.json()["cliente"]["correo"] is None
 
 
+def test_cu01_2a_correo_vacio_se_normaliza_y_correo_invalido_422(client, leer):
+    """CU-01-2a: correo en blanco se guarda como None y un formato inválido devuelve 422."""
+    assert client.post("/clientes", json={**CLIENTE, "correo": "correo-invalido"}).status_code == 422
+    assert leer(lambda s: s.query(Cliente).count()) == 0
+
+    respuesta = client.post("/clientes", json={**CLIENTE, "correo": "   "})
+    assert respuesta.status_code == 201
+    assert respuesta.json()["cliente"]["correo"] is None
+
+
 def test_cu01_2a_campos_obligatorios_y_dni_invalido_422(client, leer):
     """CU-01-2a / RN-01: sin campos obligatorios o con DNI inválido no se registra nada."""
     casos = [

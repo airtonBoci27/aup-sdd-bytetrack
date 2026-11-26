@@ -6,6 +6,7 @@ Hash: ``hashlib.scrypt`` de la biblioteca estándar (research D4), formato
 
 import base64
 import binascii
+from functools import lru_cache
 import hashlib
 import hmac
 import secrets
@@ -42,6 +43,12 @@ def hashear_clave(clave: str) -> str:
     sal = secrets.token_bytes(LONGITUD_SAL)
     derivado = _derivar(clave, sal, SCRYPT_N, SCRYPT_R, SCRYPT_P)
     return f"scrypt${SCRYPT_N}${SCRYPT_R}${SCRYPT_P}${_b64(sal)}${_b64(derivado)}"
+
+
+@lru_cache(maxsize=1)
+def hash_ficticio() -> str:
+    """Hash scrypt de relleno para igualar el costo cuando el usuario no existe (RNF-02)."""
+    return hashear_clave(secrets.token_urlsafe(24))
 
 
 def verificar_clave(clave: str, almacenado: str) -> bool:

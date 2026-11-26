@@ -2,6 +2,7 @@
 // Todo texto que llega del servidor se inserta con textContent (nunca como HTML).
 import { llamar } from "./api.js";
 import { abrirModal, cerrarModal, conectarModal } from "./modal_cliente.js";
+import { mostrarToast } from "./ui_addons.js";
 
 const PATRON_DNI = /^[0-9]{8}$/;
 const MENSAJE_GENERAL = "No se pudo completar la operación. Intente de nuevo.";
@@ -29,10 +30,10 @@ function nuevoIdOp() {
   return `OP-${hex}`;
 }
 
-/** Muestra el ID de operación vigente en el pie de GUI-01 (RNF-04). */
+/** Muestra el ID de operación vigente en el pie de recepción. */
 function mostrarIdOp() {
   el("id-operacion").textContent =
-    `ID de operación ${estado.idOp} · repetir el envío no duplica la orden (RNF-04)`;
+    `Referencia ${estado.idOp} · envío protegido contra duplicados`;
 }
 
 // ---- Mensajes ------------------------------------------------------------------------
@@ -50,12 +51,16 @@ function mostrarE01(ordenActiva) {
     ? `Este número de serie ya posee la Orden activa N.° ${ordenActiva} en laboratorio`
     : "";
   caja.hidden = !ordenActiva;
+  if (ordenActiva) caja.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function mostrarConfirmacion(texto) {
   const caja = el("confirmacion-orden");
   caja.textContent = texto || "";
   caja.hidden = !texto;
+  const btnImp = el("btn-imprimir-orden");
+  if (btnImp) btnImp.hidden = !texto;
+  if (texto) caja.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function marcar(campo, invalido) {
@@ -119,6 +124,8 @@ async function buscarCliente() {
   }
   mostrarDniError(false);
   const boton = el("buscar-cliente");
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Buscando...";
   boton.disabled = true;
   try {
     const respuesta = await llamar("GET", `/clientes/${dni}`);
@@ -141,6 +148,7 @@ async function buscarCliente() {
     limpiarCliente(); // sin conexión o respuesta inesperada
     mostrarResumen(document.createTextNode(MENSAJE_GENERAL));
   } finally {
+    boton.textContent = textoOriginal;
     boton.disabled = false;
   }
 }
@@ -288,6 +296,9 @@ async function generarOrden() {
   }
 
   estado.enviando = true;
+  const boton = el("generar-orden");
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Generando...";
   actualizarBotonGenerar();
   try {
     const respuesta = await llamar("POST", "/ordenes", { cuerpo: cuerpoOrden() });
@@ -296,9 +307,11 @@ async function generarOrden() {
       const codigo = respuesta.datos.orden.codigo;
       reiniciar();
       mostrarConfirmacion(`N.° ${codigo} listo para imprimir · el técnico recibe +1 en su cola`);
+      mostrarToast("Orden generada", `${codigo} registrada en estado RECEPCIONADO.`, "ok");
       await cargarTecnicos(); // la cola del técnico ya subió
     } else if (respuesta.estado === 409 && respuesta.datos?.codigo === "E01") {
       mostrarE01(respuesta.datos.detalle?.orden_activa); // bloquea la generación; no se crea la orden
+      mostrarToast("Alerta E01", "El equipo ya posee una orden activa en laboratorio.", "error");
     } else if (respuesta.estado === 422) {
       mostrarError("Revise los datos ingresados.");
     } else {
@@ -308,6 +321,7 @@ async function generarOrden() {
     mostrarError(MENSAJE_GENERAL); // sin conexión: se conserva lo ingresado y el ID de operación
   } finally {
     estado.enviando = false;
+    boton.textContent = textoOriginal;
     actualizarBotonGenerar();
   }
 }
@@ -339,10 +353,20 @@ function cancelar() {
   reiniciar();
 }
 
+/** Limpia los datos de recepción en memoria y en el DOM al cerrar o expirar la sesión (RNF-02). */
+export function limpiarRecepcion() {
+  reiniciar();
+}
+
 /** Se invoca cada vez que se muestra GUI-01 (tras iniciar sesión como Recepcionista). */
 export function iniciarRecepcion() {
   if (!conectado) {
     el("buscar-cliente").addEventListener("click", buscarCliente);
+    el("dni").addEventListener("input", () => {
+      const soloDigitos = el("dni").value.replace(/\D/g, "").slice(0, 8);
+      if (el("dni").value !== soloDigitos) el("dni").value = soloDigitos;
+      mostrarDniError(false);
+    });
     el("dni").addEventListener("keydown", (evento) => {
       if (evento.key === "Enter") buscarCliente();
     });
@@ -352,6 +376,7 @@ export function iniciarRecepcion() {
       for (const tipo of ["input", "change"]) el(id).addEventListener(tipo, () => mostrarE01(""));
     }
     el("generar-orden").addEventListener("click", generarOrden);
+    el("btn-imprimir-orden")?.addEventListener("click", () => window.print());
     // GUI-02: abrir con el DNI buscado y cargar el cliente que devuelve (cursos 2a y 2b).
     conectarModal({
       alCargar: (datos) => {

@@ -298,6 +298,25 @@ def test_rnf02_logout_permitido_a_cualquier_rol(client_tecnico):
     assert client_tecnico.post("/auth/logout").status_code == 204
 
 
+def test_rnf02_login_usuario_inexistente_ejecuta_verificacion_de_hash(client_sin_sesion, monkeypatch):
+    """RNF-02: iguala el flujo criptográfico aunque el usuario no exista (mitiga enumeración por tiempo)."""
+    from app import security
+
+    llamadas = []
+    original = security.verificar_clave
+
+    def _espia(clave, almacenado):
+        llamadas.append(almacenado)
+        return original(clave, almacenado)
+
+    monkeypatch.setattr(security, "verificar_clave", _espia)
+    r = client_sin_sesion.post("/auth/token", data={"username": "no-existe", "password": "x"})
+
+    assert r.status_code == 401
+    assert r.json()["codigo"] == "CREDENCIALES_INVALIDAS"
+    assert len(llamadas) == 1
+
+
 def test_rnf02_logout_permite_iniciar_sesion_con_otro_usuario(
     client, crear_usuario, iniciar_sesion
 ):

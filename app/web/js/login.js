@@ -15,6 +15,32 @@ export function iniciarLogin({ alEntrar }) {
   const usuario = document.getElementById("login-usuario");
   const clave = document.getElementById("login-clave");
   const boton = document.getElementById("login-entrar");
+  const toggleClave = document.getElementById("login-ver-clave");
+  const avisoMayus = document.getElementById("login-mayus");
+
+  toggleClave.addEventListener("click", () => {
+    const mostrar = clave.type === "password";
+    clave.type = mostrar ? "text" : "password";
+    toggleClave.textContent = mostrar ? "Ocultar" : "Mostrar";
+    toggleClave.setAttribute("aria-pressed", String(mostrar));
+    clave.focus();
+  });
+
+  const revisarMayus = (evento) => {
+    if (typeof evento.getModifierState === "function") {
+      avisoMayus.hidden = !evento.getModifierState("CapsLock");
+    }
+  };
+  clave.addEventListener("keydown", revisarMayus);
+  clave.addEventListener("keyup", revisarMayus);
+  clave.addEventListener("blur", () => { avisoMayus.hidden = true; });
+
+  for (const campo of [usuario, clave]) {
+    campo.addEventListener("input", () => {
+      campo.removeAttribute("aria-invalid");
+      mostrarError("");
+    });
+  }
 
   formulario.addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -29,6 +55,8 @@ export function iniciarLogin({ alEntrar }) {
       return;
     }
     boton.disabled = true;
+    const textoOriginal = boton.textContent;
+    boton.textContent = "Iniciando sesión...";
     try {
       const { estado, datos } = await llamar("POST", "/auth/token", {
         formulario: { username: nombre, password: clave.value },
@@ -47,6 +75,11 @@ export function iniciarLogin({ alEntrar }) {
       mostrarError(MENSAJE_GENERAL); // sin conexión o respuesta inesperada
     } finally {
       clave.value = "";
+      clave.type = "password";
+      toggleClave.textContent = "Mostrar";
+      toggleClave.setAttribute("aria-pressed", "false");
+      avisoMayus.hidden = true;
+      boton.textContent = textoOriginal;
       boton.disabled = false;
     }
   });

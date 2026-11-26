@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import config
-from app.api import auth, clientes, ordenes, tecnicos
+from app.api import auth, clientes, ordenes, taller, tecnicos
 from app.api.etiquetas import METADATOS_ETIQUETAS
 from app.database import crear_tablas
 from app.errors import ErrorDominio
@@ -44,6 +44,20 @@ app = FastAPI(
 )
 
 
+@app.middleware("http")
+async def agregar_cabeceras_seguridad(solicitud: Request, call_next):
+    """Cabeceras defensivas HTTP (RNF-02); CSP estricta en la interfaz web sin romper Swagger."""
+    respuesta = await call_next(solicitud)
+    respuesta.headers.setdefault("X-Content-Type-Options", "nosniff")
+    respuesta.headers.setdefault("X-Frame-Options", "DENY")
+    respuesta.headers.setdefault("Referrer-Policy", "no-referrer")
+    if not solicitud.url.path.startswith(("/docs", "/redoc", "/openapi.json")):
+        respuesta.headers.setdefault(
+            "Content-Security-Policy", "default-src 'self'; frame-ancestors 'none'"
+        )
+    return respuesta
+
+
 @app.exception_handler(ErrorDominio)
 async def manejar_error_dominio(_solicitud: Request, error: ErrorDominio) -> JSONResponse:
     """Formato de error uniforme: {codigo, mensaje, detalle} (con cabeceras como WWW-Authenticate)."""
@@ -58,6 +72,7 @@ app.include_router(auth.router)
 app.include_router(clientes.router)
 app.include_router(tecnicos.router)
 app.include_router(ordenes.router)
+app.include_router(taller.router)
 
 # Interfaz web estática (GUI-01, GUI-02): se monta al final para que las rutas de la API tengan
 # prioridad. Sin framework ni compilación (constitución, Restricciones Técnicas).

@@ -1,7 +1,7 @@
 """Acceso a datos de clientes."""
 
-from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy import func, or_, select
+from sqlalchemy.orm import Session, selectinload
 
 from app.models.entities import Cliente, Equipo
 
@@ -19,6 +19,37 @@ class ClienteRepository:
                 select(Equipo).where(Equipo.cliente_id == cliente_id).order_by(Equipo.id)
             )
         )
+
+    def listar_paginado(
+        self, *, q: str | None = None, page: int = 1, limit: int = 6
+    ) -> tuple[list[Cliente], int]:
+        """Lista clientes con sus equipos precargados y búsqueda por DNI, nombre o teléfono."""
+        filtros = []
+        if q and q.strip():
+            patron = f"%{q.strip()}%"
+            filtros.append(
+                or_(
+                    Cliente.dni.ilike(patron),
+                    Cliente.nombres.ilike(patron),
+                    Cliente.apellidos.ilike(patron),
+                    Cliente.telefono.ilike(patron),
+                )
+            )
+        total = (
+            self.sesion.scalar(select(func.count()).select_from(Cliente).where(*filtros)) or 0
+        )
+        offset = (page - 1) * limit
+        items = list(
+            self.sesion.scalars(
+                select(Cliente)
+                .options(selectinload(Cliente.equipos))
+                .where(*filtros)
+                .order_by(Cliente.apellidos, Cliente.nombres)
+                .offset(offset)
+                .limit(limit)
+            )
+        )
+        return items, total
 
     def crear(
         self,

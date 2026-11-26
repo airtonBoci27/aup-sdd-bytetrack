@@ -3,16 +3,24 @@
 import { llamar } from "./api.js";
 
 const PATRON_DNI = /^[0-9]{8}$/;
+const PATRON_CORREO = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const MENSAJE_GENERAL = "No se pudo completar la operación. Intente de nuevo.";
 const AVISO_DNI_REGISTRADO = "El DNI ya está registrado";
 
 const el = (id) => document.getElementById(id);
 const CAMPOS = ["cli-dni", "cli-nombres", "cli-apellidos", "cli-telefono", "cli-correo"];
-const ETIQUETAS = { "cli-dni": "DNI", "cli-nombres": "Nombres", "cli-apellidos": "Apellidos", "cli-telefono": "Teléfono" };
+const ETIQUETAS = {
+  "cli-dni": "DNI",
+  "cli-nombres": "Nombres",
+  "cli-apellidos": "Apellidos",
+  "cli-telefono": "Teléfono",
+  "cli-correo": "Correo",
+};
 
 let alCargarCliente = () => {};
 let conectado = false;
 let enviando = false;
+let elementoPrevio = null;
 
 function marcar(campo, invalido) {
   if (invalido) campo.setAttribute("aria-invalid", "true");
@@ -29,12 +37,19 @@ function mostrarAviso(texto) {
   el("cli-aviso").hidden = !texto;
 }
 
-export function cerrarModal() {
-  el("modal-cliente").hidden = true;
+export function cerrarModal({ restaurarFoco = false } = {}) {
+  const modal = el("modal-cliente");
+  if (modal.hidden) return;
+  modal.hidden = true;
+  if (restaurarFoco && elementoPrevio && !elementoPrevio.disabled) {
+    elementoPrevio.focus();
+  }
+  elementoPrevio = null;
 }
 
 /** Abre el modal con el DNI buscado precargado (FR-028). */
 export function abrirModal(dni) {
+  elementoPrevio = document.activeElement instanceof HTMLElement ? document.activeElement : null;
   for (const id of CAMPOS) {
     el(id).value = "";
     marcar(el(id), false);
@@ -47,7 +62,7 @@ export function abrirModal(dni) {
   el("cli-nombres").focus();
 }
 
-/** Valida los obligatorios y el DNI de 8 dígitos; marca y lista cada campo a corregir (FR-029). */
+/** Valida los obligatorios, el DNI de 8 dígitos y el correo opcional; marca y lista cada campo a corregir (FR-029). */
 function validar() {
   const incorrectos = [];
   const exigir = (id, valido) => {
@@ -56,6 +71,8 @@ function validar() {
   };
   exigir("cli-dni", PATRON_DNI.test(el("cli-dni").value.trim()));
   for (const id of ["cli-nombres", "cli-apellidos", "cli-telefono"]) exigir(id, el(id).value.trim() !== "");
+  const correo = el("cli-correo").value.trim();
+  exigir("cli-correo", correo === "" || PATRON_CORREO.test(correo));
   return incorrectos;
 }
 
@@ -70,7 +87,10 @@ async function guardar() {
     return;
   }
   enviando = true;
-  el("cli-guardar").disabled = true;
+  const boton = el("cli-guardar");
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Guardando...";
+  boton.disabled = true;
   let bloquearGuardar = false;
   try {
     const correo = el("cli-correo").value.trim();
@@ -101,7 +121,8 @@ async function guardar() {
     mostrarError(MENSAJE_GENERAL); // sin conexión: no se registra nada
   } finally {
     enviando = false;
-    el("cli-guardar").disabled = bloquearGuardar;
+    boton.textContent = textoOriginal;
+    boton.disabled = bloquearGuardar;
   }
 }
 
@@ -110,11 +131,27 @@ export function conectarModal({ alCargar }) {
   alCargarCliente = alCargar;
   if (conectado) return;
   el("cli-guardar").addEventListener("click", guardar);
-  el("cli-cancelar").addEventListener("click", cerrarModal); // cierra sin registrar (FR-032)
+  el("cli-cancelar").addEventListener("click", () => cerrarModal({ restaurarFoco: true })); // cierra sin registrar (FR-032)
+  el("modal-cliente").addEventListener("click", (evento) => {
+    if (evento.target === el("modal-cliente")) cerrarModal({ restaurarFoco: true });
+  });
+  document.addEventListener("keydown", (evento) => {
+    if (evento.key === "Escape" && !el("modal-cliente").hidden) {
+      cerrarModal({ restaurarFoco: true });
+    }
+  });
   for (const id of CAMPOS) {
     el(id).addEventListener("input", () => marcar(el(id), false));
+    el(id).addEventListener("keydown", (evento) => {
+      if (evento.key === "Enter") {
+        evento.preventDefault();
+        guardar();
+      }
+    });
   }
   el("cli-dni").addEventListener("input", () => {
+    const soloDigitos = el("cli-dni").value.replace(/\D/g, "").slice(0, 8);
+    if (el("cli-dni").value !== soloDigitos) el("cli-dni").value = soloDigitos;
     mostrarAviso(""); // al editar el DNI se vuelve a permitir guardar
     el("cli-guardar").disabled = enviando;
   });
